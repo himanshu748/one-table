@@ -24,7 +24,8 @@ We verified 42 automated tests and a controlled email loop between two owned inb
 ## Links
 - App: https://wooden-dogfish-387.convex.site/
 - Repo: https://github.com/himanshu748/one-table
-- Video: https://github.com/himanshu748/one-table/releases/download/hackathon-preview/one-table-walkthrough.mp4
+- Video: https://drive.google.com/file/d/19CIu9tWAfKNo1nFfHzACgcnQIv-oUi_C/view
+- Video download backup: https://github.com/himanshu748/one-table/releases/download/hackathon-preview/one-table-walkthrough.mp4
 
 ## Form details
 - Name: Himanshu Jha (Vibe Apps profile)

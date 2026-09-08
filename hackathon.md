@@ -78,3 +78,7 @@ Filled the Vibe Apps form with project copy, public app/repo/video links, screen
 ## September 8 — Submission receipt
 
 After the owner signed in, Vibe Apps returned “Thanks for sharing!” and the profile submission count increased from one to two. The saved listing is https://vibeapps.dev/s/one-table under Himanshu Jha. Verified the public app URL, repository, walkthrough video, two screenshots and tags convex, AllGasHackathon, OpenAI, Firecrawl, codex and AgentMail. The listing change log records the original submission on September 8, 2026. Luma registration and entrant eligibility remain unverified; the sponsor social post is still a draft.
+
+## September 8 — Drive video hosting
+
+Uploaded the 86-second walkthrough to Google Drive and verified anyone-with-link reader permission (no sign-in required). Updated the existing Vibe Apps video field and verified the saved Drive link and embedded player. Drive processing completed; browser playback advanced to 0:06 of 1:26. The GitHub release remains a download backup. Video: https://drive.google.com/file/d/19CIu9tWAfKNo1nFfHzACgcnQIv-oUi_C/view
