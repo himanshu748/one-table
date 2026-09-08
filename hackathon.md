@@ -38,7 +38,7 @@ The latest five completed fixtures scored 63/65 fields, 34/35 blank-when-unstate
 - Provider-delivered incoming replies are now verified between two owned test inboxes; arbitrary external venue deliverability is not yet tested.
 - Resolve provider rate limits and complete the extraction regression gate.
 - Published-pricing discovery and PDF quotes remain unfinished. Requested term-only clarifications now merge with source-message references.
-- Complete an independent human usability test, confirm Luma registration and publish the sponsor-tagged social post. Repository, walkthrough and Vibe Apps submission are published.
+- Complete an independent human usability test, confirm Luma registration. Repository, walkthrough and Vibe Apps submission are published.
 
 No real venues were contacted during this implementation pass. The public deployment no longer uses a recipient allowlist; controlled tests used only owned inboxes. Secrets are stored in backend environment variables and are absent from source and frontend bundles.
 
@@ -82,3 +82,10 @@ After the owner signed in, Vibe Apps returned “Thanks for sharing!” and the 
 ## September 8 — Drive video hosting
 
 Uploaded the 86-second walkthrough to Google Drive and verified anyone-with-link reader permission (no sign-in required). Updated the existing Vibe Apps video field and verified the saved Drive link and embedded player. Drive processing completed; browser playback advanced to 0:06 of 1:26. The GitHub release remains a download backup. Video: https://drive.google.com/file/d/19CIu9tWAfKNo1nFfHzACgcnQIv-oUi_C/view
+
+## September 8 — X launch published
+
+Published a two-post thread with the native 86-second walkthrough attached, naming One Table as the second submission after RentPilot and tagging @convex @OpenAI @firecrawl @agentmail with #AllGasHackathon. X confirmed both posts were sent; the main post displayed embedded video. The second post links RentPilot and explains the fictional example and controlled inbox test. Saved and verified the main post in the Vibe Apps X field.
+
+- Launch: https://x.com/jhahimanshu653/status/2097279039463694526
+- RentPilot context: https://x.com/jhahimanshu653/status/2097279042210914378

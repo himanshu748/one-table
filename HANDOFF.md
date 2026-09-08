@@ -23,7 +23,7 @@ Inbox: `one-table-himanshu@agentmail.to`. The dedicated key has nine permissions
 - Term-only answers to requested clarifications merge into the prior quote with source IDs. Broad negotiation and arbitrary revision merging are intentionally unsupported.
 - Inbound alternate sales senders and attachment-only quotes need manual review.
 - Sending needs verified email and buyer approval, with three contacted venues per event and five enquiries per account per day. An opted-in, once-per-venue clarification runs after a quote; no timer reminders run.
-- Independent human playtest, Luma registration confirmation and sponsor social publication remain outstanding. Public source and walkthrough are on GitHub; Vibe Apps submission is verified at https://vibeapps.dev/s/one-table.
+- Independent human playtest and Luma registration confirmation remain outstanding. Sponsor-tagged X launch is published and linked from the submission. Public source and walkthrough are on GitHub; Vibe Apps submission is verified at https://vibeapps.dev/s/one-table.
 
 ## Verification
 

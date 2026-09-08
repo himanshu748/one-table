@@ -22,6 +22,7 @@ Claude built the initial quote-extraction experiment and comparison interface. C
 We verified 42 automated tests and a controlled email loop between two owned inboxes. A fictional INR 1,250 quote plus 18% GST produced the expected INR 177,000 total for 120 guests. No real venues were contacted in that test. Firecrawl returned real source pages separately. Published-pricing extraction and attachment-only quotes remain unfinished, and the full twelve-fixture extraction benchmark is still incomplete because of provider rate limits.
 
 ## Links
+- X launch thread: https://x.com/jhahimanshu653/status/2097279039463694526
 - App: https://wooden-dogfish-387.convex.site/
 - Repo: https://github.com/himanshu748/one-table
 - Video: https://drive.google.com/file/d/19CIu9tWAfKNo1nFfHzACgcnQIv-oUi_C/view
@@ -37,4 +38,4 @@ We verified 42 automated tests and a controlled email loop between two owned inb
 Open the app without an invitation. Choose See how it works for the fictional example, or My events to verify your email and use a private workspace. For real sending, select contacts you intend to approach and review the enquiry. Please do not send fictional requests to real venues. You can paste a sample quote to try extraction without emailing anyone.
 
 ## Remaining platform checks
-Confirm Luma registration and entrant eligibility. Public repository and hosted 86-second captioned walkthrough are ready. Vibe Apps submission is complete. A public post tagging the sponsors is required by the event and has not been published from this task.
+Confirm Luma registration and entrant eligibility. Public repository and hosted 86-second captioned walkthrough are ready. Vibe Apps submission is complete. The sponsor-tagged launch thread is published: https://x.com/jhahimanshu653/status/2097279039463694526
