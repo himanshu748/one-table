@@ -37,10 +37,10 @@ The latest five completed fixtures scored 63/65 fields, 34/35 blank-when-unstate
 
 - Provider-delivered incoming replies are now verified between two owned test inboxes; arbitrary external venue deliverability is not yet tested.
 - Resolve provider rate limits and complete the extraction regression gate.
-- Published-pricing discovery, PDF quotes and provenance-aware merging of follow-up-only replies remain unfinished.
-- Complete a human usability test, publish the repository, record the submission video, and submit through the event platform. No submission or win claim is made.
+- Published-pricing discovery and PDF quotes remain unfinished. Requested term-only clarifications now merge with source-message references.
+- Complete an independent human usability test, confirm Luma registration and publish the sponsor-tagged social post. Repository, walkthrough and Vibe Apps submission are published.
 
-No real venues were contacted during this implementation pass. Only the One Table inbox and the owned sample-source test inbox are allowlisted. Secrets are stored in backend environment variables and are absent from source and frontend bundles.
+No real venues were contacted during this implementation pass. The public deployment no longer uses a recipient allowlist; controlled tests used only owned inboxes. Secrets are stored in backend environment variables and are absent from source and frontend bundles.
 
 ## Landing and demonstration update
 
@@ -74,3 +74,7 @@ The landing and navigation button now says “See how it works”, as requested.
 Published source to https://github.com/himanshu748/one-table after scanning all staged files (zero known-pattern findings; no omitted files). Hosted a captioned 86-second browser walkthrough and screenshots at https://github.com/himanshu748/one-table/releases/tag/hackathon-preview. Footage shows the example and saved controlled email evidence; pauses are edited out, and there is no audio.
 
 Filled the Vibe Apps form with project copy, public app/repo/video links, screenshots and six tags including AllGasHackathon. The submit attempt required sign-in; there is no platform receipt yet. Sponsor social post is drafted but not posted. Luma registration still needs confirmation.
+
+## September 8 — Submission receipt
+
+After the owner signed in, Vibe Apps returned “Thanks for sharing!” and the profile submission count increased from one to two. The saved listing is https://vibeapps.dev/s/one-table under Himanshu Jha. Verified the public app URL, repository, walkthrough video, two screenshots and tags convex, AllGasHackathon, OpenAI, Firecrawl, codex and AgentMail. The listing change log records the original submission on September 8, 2026. Luma registration and entrant eligibility remain unverified; the sponsor social post is still a draft.

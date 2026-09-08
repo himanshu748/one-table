@@ -1,6 +1,6 @@
-# One Table submission draft
+# One Table submission record
 
-Status: form prepared; submission attempt prompted Vibe Apps sign-in. No submission receipt yet.
+Status: submitted on September 8, 2026. Vibe Apps returned “Thanks for sharing!” and the saved listing was verified at https://vibeapps.dev/s/one-table with both screenshots, the video, repository and all six tags.
 
 ## App title
 One Table
@@ -27,7 +27,7 @@ We verified 42 automated tests and a controlled email loop between two owned inb
 - Video: https://github.com/himanshu748/one-table/releases/download/hackathon-preview/one-table-walkthrough.mp4
 
 ## Form details
-- Name: Himanshu Kumar (GitHub profile)
+- Name: Himanshu Jha (Vibe Apps profile)
 - Tags: AllGasHackathon, convex, OpenAI, Firecrawl, codex, AgentMail
 - Email: omit unless supplied for notifications
 - Screenshot: public landing and example comparison
@@ -36,4 +36,4 @@ We verified 42 automated tests and a controlled email loop between two owned inb
 Open the app without an invitation. Choose See how it works for the fictional example, or My events to verify your email and use a private workspace. For real sending, select contacts you intend to approach and review the enquiry. Please do not send fictional requests to real venues. You can paste a sample quote to try extraction without emailing anyone.
 
 ## Remaining platform checks
-Confirm Luma registration and entrant eligibility. Public repository and hosted 86-second captioned walkthrough are ready. Review the completed Vibe Apps form before the final submission. A public post tagging the sponsors is required by the event and has not been published from this task.
+Confirm Luma registration and entrant eligibility. Public repository and hosted 86-second captioned walkthrough are ready. Vibe Apps submission is complete. A public post tagging the sponsors is required by the event and has not been published from this task.
