@@ -1,0 +1,38 @@
+{
+  "name": "one-table",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "convex dev --start vite",
+    "dev:web": "vite",
+    "dev:convex": "convex dev",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b --noEmit",
+    "deploy": "npx @convex-dev/static-hosting deploy",
+    "extract:test": "node experiments/extraction/run.mjs",
+    "test": "vitest run",
+    "deploy:pilot": "npx @convex-dev/static-hosting upload --build --dev"
+  },
+  "dependencies": {
+    "@auth/core": "^0.41.3",
+    "@convex-dev/auth": "^0.0.95",
+    "@convex-dev/rate-limiter": "^0.3.2",
+    "@convex-dev/static-hosting": "^0.1.0",
+    "convex": "^1.17.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "svix": "^2.3.0",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^26.5.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "convex-test": "^0.0.56",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3",
+    "vitest": "^5.0.0"
+  }
+}

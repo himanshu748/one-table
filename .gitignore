@@ -1,0 +1,21 @@
+node_modules
+dist
+.env
+.env.local
+.DS_Store
+*.log
+
+.env.*
+!.env.example
+.playwright/
+.playwright-cli/
+output/
+*.tsbuildinfo
+
+# Rendered video artifacts and local preview caches
+videos/**/renders/
+videos/**/snapshots/
+videos/**/.hyperframes/
+videos/**/node_modules/
+
+videos/**/.thumbnails/

@@ -1,0 +1,184 @@
+{
+  "provider": "openai-via-vercel-gateway",
+  "model": "openai/gpt-4.1",
+  "headcount": 120,
+  "at": "2026-09-08T08:47:19.756Z",
+  "results": [
+    {
+      "id": "sagar-per-head-split",
+      "subject": "Re: Enquiry for 120 pax reception, 14 Feb",
+      "extracted": {
+        "reply_kind": "quote",
+        "vendor_name": "Sagar Banquets",
+        "pricing_model": "per_head",
+        "per_head_veg": 1250,
+        "per_head_nonveg": 1550,
+        "package_total": null,
+        "package_covers": null,
+        "hall_rent": null,
+        "fnb_minimum": null,
+        "min_guarantee_covers": 100,
+        "taxes_included": false,
+        "tax_percent": null,
+        "lead_time_days": null,
+        "inclusions": [
+          "2 welcome drinks",
+          "4 starters",
+          "6 main course",
+          "2 desserts",
+          "Unlimited soft drinks"
+        ],
+        "exclusions": [
+          "DJ",
+          "Decoration"
+        ],
+        "unstated": [
+          "package_total",
+          "package_covers",
+          "hall_rent",
+          "fnb_minimum",
+          "tax_percent",
+          "lead_time_days"
+        ]
+      }
+    },
+    {
+      "id": "grandeur-package-flat",
+      "subject": "RE: Reception enquiry",
+      "extracted": {
+        "reply_kind": "quote",
+        "vendor_name": "Grandeur Hall",
+        "pricing_model": "package",
+        "per_head_veg": null,
+        "per_head_nonveg": null,
+        "package_total": 210000,
+        "package_covers": 150,
+        "hall_rent": null,
+        "fnb_minimum": null,
+        "min_guarantee_covers": null,
+        "taxes_included": true,
+        "tax_percent": null,
+        "lead_time_days": 10,
+        "inclusions": [
+          "hall",
+          "basic decor",
+          "veg buffet",
+          "service staff"
+        ],
+        "exclusions": [],
+        "unstated": [
+          "per_head_veg",
+          "per_head_nonveg",
+          "hall_rent",
+          "fnb_minimum",
+          "min_guarantee_covers",
+          "tax_percent",
+          "min_guarantee_covers"
+        ]
+      }
+    },
+    {
+      "id": "orchid-hall-plus-fnb",
+      "subject": "Re: Availability 14th Feb evening",
+      "extracted": {
+        "reply_kind": "quote",
+        "vendor_name": "Orchid Convention Centre",
+        "pricing_model": "hall_plus_fnb",
+        "per_head_veg": 1100,
+        "per_head_nonveg": 1400,
+        "package_total": null,
+        "package_covers": null,
+        "hall_rent": 75000,
+        "fnb_minimum": 140000,
+        "min_guarantee_covers": null,
+        "taxes_included": false,
+        "tax_percent": 18,
+        "lead_time_days": null,
+        "inclusions": [
+          "basic lighting",
+          "tables",
+          "chairs",
+          "linen"
+        ],
+        "exclusions": [
+          "decor",
+          "DJ",
+          "valet"
+        ],
+        "unstated": [
+          "package_total",
+          "package_covers",
+          "min_guarantee_covers",
+          "lead_time_days"
+        ]
+      }
+    },
+    {
+      "id": "terse-pdf-attachment",
+      "subject": "Re: Quote request",
+      "extracted": {
+        "reply_kind": "no_price",
+        "vendor_name": "Amit",
+        "pricing_model": "unknown",
+        "per_head_veg": null,
+        "per_head_nonveg": null,
+        "package_total": null,
+        "package_covers": null,
+        "hall_rent": null,
+        "fnb_minimum": null,
+        "min_guarantee_covers": null,
+        "taxes_included": null,
+        "tax_percent": null,
+        "lead_time_days": null,
+        "inclusions": [],
+        "exclusions": [],
+        "unstated": [
+          "per_head_veg",
+          "per_head_nonveg",
+          "package_total",
+          "package_covers",
+          "hall_rent",
+          "fnb_minimum",
+          "min_guarantee_covers",
+          "taxes_included",
+          "tax_percent",
+          "lead_time_days"
+        ]
+      }
+    },
+    {
+      "id": "wrong-headcount-answer",
+      "subject": "Re: 120 pax enquiry for reception",
+      "extracted": {
+        "reply_kind": "quote",
+        "vendor_name": "Vasant Vihar Banquets",
+        "pricing_model": "per_head",
+        "per_head_veg": 1349,
+        "per_head_nonveg": null,
+        "package_total": null,
+        "package_covers": null,
+        "hall_rent": null,
+        "fnb_minimum": null,
+        "min_guarantee_covers": null,
+        "taxes_included": null,
+        "tax_percent": null,
+        "lead_time_days": null,
+        "inclusions": [],
+        "exclusions": [],
+        "unstated": [
+          "per_head_nonveg",
+          "package_total",
+          "package_covers",
+          "hall_rent",
+          "fnb_minimum",
+          "min_guarantee_covers",
+          "taxes_included",
+          "tax_percent",
+          "lead_time_days",
+          "inclusions",
+          "exclusions"
+        ]
+      }
+    }
+  ]
+}

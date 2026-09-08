@@ -1,0 +1,70 @@
+# One Table — Convex All Gas build record
+
+Public pilot: https://wooden-dogfish-387.convex.site
+
+## Product
+
+Families comparing venues receive incompatible prices: per guest, fixed packages, hall rent, food minimums, and unclear taxes. One Table saves original replies and compares those quotes at the chosen guest count. Missing terms stay visible instead of becoming invented prices.
+
+## Implemented
+
+Claude supplied the original extraction experiment, arithmetic and fictional comparison UI. Codex connected the private workspace, fixed pricing edge cases and completed the provider transport during September 8, 2026.
+
+- Convex Auth email-code sign-in, legacy guest upgrade, owner-scoped events, venues, messages and quote revisions.
+- Convex scheduled extraction and reactive board updates; no browser polling loop.
+- Firecrawl source-backed venue contact discovery.
+- OpenAI extraction via AI Gateway, with visible failures and a shared experiment/production contract.
+- Dedicated AgentMail inbox, inbox-scoped backend key, signed webhook and reviewed outbound enquiries for verified accounts, with backend rate limits.
+- Responsive comparison, menu selection, guest-count arithmetic, original messages, retry controls, delivery states and CSV export.
+- Convex static hosting on a dedicated development deployment. Production is not yet configured.
+
+## Verified evidence
+
+- 42 local tests pass: arithmetic, ownership, duplicate and stale results, and signed webhook decoding.
+- Production frontend build passes.
+- Public pilot opens without an invitation; a fresh browser session created its own event and could not see the first session's event.
+- Live Firecrawl search returned two Mumbai contact leads with source pages. These are unverified leads, not venue endorsements.
+- A fictional pasted quote went through deployed OpenAI extraction and completed in the live workspace.
+- Desktop and mobile screenshots are in ignored `output/playwright/`; public browser console initially showed zero errors and warnings. The final deployed build preserved the saved event and extracted quote after reload, disabled duplicate sending, and passed horizontal-overflow checks at 390, 768 and 1440 pixels.
+- The reviewed enquiry send and a fictional self-addressed reply were accepted by AgentMail in the same thread. Both were labelled sent; automatic inbound delivery was not observed. This does not establish a full provider round trip.
+- A controlled signed webhook test exposed an SDK contract mismatch: Svix verifies but returns no parsed JSON. The handler now verifies first, then parses. Regression tests cover this behavior. A subsequent signed fixture passed through deployed extraction to a ₹150,000 total; replay produced one message, and an unsigned request returned 401. This is synthetic transport evidence, not provider delivery.
+
+## Extraction gate
+
+The latest five completed fixtures scored 63/65 fields, 34/35 blank-when-unstated checks and 5/5 normalized totals. Persistent AI Gateway 429 responses stopped the remaining cases. `experiments/extraction/results-openai.json` contains partial evidence; the complete twelve-case gate has not passed. The example UI uses Claude's historical fictional extraction results, explicitly labelled.
+
+## Remaining gates
+
+- Provider-delivered incoming replies are now verified between two owned test inboxes; arbitrary external venue deliverability is not yet tested.
+- Resolve provider rate limits and complete the extraction regression gate.
+- Published-pricing discovery, PDF quotes and provenance-aware merging of follow-up-only replies remain unfinished.
+- Complete a human usability test, publish the repository, record the submission video, and submit through the event platform. No submission or win claim is made.
+
+No real venues were contacted during this implementation pass. Only the One Table inbox and the owned sample-source test inbox are allowlisted. Secrets are stored in backend environment variables and are absent from source and frontend bundles.
+
+## Landing and demonstration update
+
+The public homepage now explains the comparison workflow through an interactive fictional price example, missing-term example and pilot/privacy FAQ. The demo has its own `#demo` URL and mock original replies; `#workspace` opens real private events. The homepage preview and demo do not send email or save fictional records into the workspace. The comparison preview, mock reply viewer and mobile layout were exercised in a browser. All 31 existing tests still pass, and the frontend build succeeds.
+
+
+## Real email loop verified, September 8, 09:25–09:26 UTC
+
+A new private event, Fictional email loop QA, sent an approved enquiry to the owned sample-source inbox with automatic clarification enabled. That inbox received it and replied with a fictional ₹1,250 per-guest quote, 100-guest minimum, ten-day confirmation and GST extra with no percentage. AgentMail delivered the reply to the registered webhook; OpenAI extracted it. After 15 seconds, One Table automatically asked only for the missing GST rate in the same thread. The source inbox received that clarification and replied “18% extra.” The board updated to ₹177,000 for 120 guests, showing two completed inbox replies and exactly one clarification. No pasted reply or synthetic webhook was used for this loop.
+
+One Table thread ID: `62458bd5-3102-4436-a4e9-29ad35ad00bd`. The provider receipt showed two sent and two received messages. Browser evidence: `output/playwright/email-loop-proof.png`. The quote arithmetic matches 120 × 1,250 × 1.18.
+
+36 tests pass, including consent, one-time send claims, term-only clarification merging with source IDs, autoresponder preservation and sender isolation. Incoming processing uses AgentMail's `extracted_text` for the newest reply when available, while retaining the full original body. The full twelve-fixture OpenAI regression remains rate-limit constrained.
+
+A subsequent provider-delivered tax-only confirmation was processed using the stripped reply text. The stored live quote retained two source-message references and the ₹177,000 total. No second clarification was sent. Mobile and desktop overflow checks passed for the conversation UI.
+
+## September 8, 2026 — Self-service verified accounts and public sending
+
+Added Convex Auth email-code sign-in using the dedicated AgentMail inbox. Codes expire in ten minutes. Existing guest events transfer only after successful verification; account sign-in works in a separate browser session. No OAuth client or additional identity provider is needed.
+
+Registered `@convex-dev/rate-limiter`. Enquiries require a verified account, owner checks and buyer approval, with three contacted venues per event and five enquiries per account per day. Global enquiry/clarification, search, extraction and authentication-mail ceilings are enforced on the backend. The recipient allowlist is unset on the public deployment; `PUBLIC_SENDING_ENABLED=true`. The switch can pause new public sends. Rate limits bound requests rather than guaranteeing a dollar budget.
+
+Verification: 42 tests passed, frontend build passed, backend pushed, and static assets uploaded to wooden-dogfish-387.convex.site. Two controlled accounts verified; both guest migrations preserved their own saved events. A clean browser recovered the first account's event. A sign-in code was actually received at the second owned inbox and redeemed without exposing it in the app. Public Firecrawl search returned source links for Four Seasons Mumbai and The Orchid. No discovered venues were emailed.
+
+A verified account approved an enquiry to the owned sample inbox with the recipient allowlist removed. AgentMail marked that enquiry received. A fictional quote reply arrived through the signed webhook, OpenAI extracted it and the live comparison showed INR 177,000 for 120 guests at INR 1,250 plus 18% GST. This is controlled test evidence, not a real venue quote. The earlier self-addressed test showed sent-only records and was not counted as an inbound delivery test.
+
+The landing and navigation button now says “See how it works”, as requested. The example retains its fictional-data disclosure. Screenshots: `output/playwright/verified-public-email-loop.png`, `output/playwright/public-signin-mobile.png`. Current deployment remains the dedicated cloud development pilot; production migration, independent user feedback and final hackathon submission remain separate gates.
