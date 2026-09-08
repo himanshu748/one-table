@@ -68,3 +68,9 @@ Verification: 42 tests passed, frontend build passed, backend pushed, and static
 A verified account approved an enquiry to the owned sample inbox with the recipient allowlist removed. AgentMail marked that enquiry received. A fictional quote reply arrived through the signed webhook, OpenAI extracted it and the live comparison showed INR 177,000 for 120 guests at INR 1,250 plus 18% GST. This is controlled test evidence, not a real venue quote. The earlier self-addressed test showed sent-only records and was not counted as an inbound delivery test.
 
 The landing and navigation button now says “See how it works”, as requested. The example retains its fictional-data disclosure. Screenshots: `output/playwright/verified-public-email-loop.png`, `output/playwright/public-signin-mobile.png`. Current deployment remains the dedicated cloud development pilot; production migration, independent user feedback and final hackathon submission remain separate gates.
+
+## September 8 — Submission package
+
+Published source to https://github.com/himanshu748/one-table after scanning all staged files (zero known-pattern findings; no omitted files). Hosted a captioned 86-second browser walkthrough and screenshots at https://github.com/himanshu748/one-table/releases/tag/hackathon-preview. Footage shows the example and saved controlled email evidence; pauses are edited out, and there is no audio.
+
+Filled the Vibe Apps form with project copy, public app/repo/video links, screenshots and six tags including AllGasHackathon. The submit attempt required sign-in; there is no platform receipt yet. Sponsor social post is drafted but not posted. Luma registration still needs confirmation.

@@ -1,6 +1,6 @@
 # One Table submission draft
 
-Status: prepared locally; not submitted.
+Status: form prepared; submission attempt prompted Vibe Apps sign-in. No submission receipt yet.
 
 ## App title
 One Table
@@ -23,8 +23,8 @@ We verified 42 automated tests and a controlled email loop between two owned inb
 
 ## Links
 - App: https://wooden-dogfish-387.convex.site/
-- Repo: pending public publication
-- Video: pending hosted walkthrough
+- Repo: https://github.com/himanshu748/one-table
+- Video: https://github.com/himanshu748/one-table/releases/download/hackathon-preview/one-table-walkthrough.mp4
 
 ## Form details
 - Name: Himanshu Kumar (GitHub profile)
@@ -36,4 +36,4 @@ We verified 42 automated tests and a controlled email loop between two owned inb
 Open the app without an invitation. Choose See how it works for the fictional example, or My events to verify your email and use a private workspace. For real sending, select contacts you intend to approach and review the enquiry. Please do not send fictional requests to real venues. You can paste a sample quote to try extraction without emailing anyone.
 
 ## Remaining platform checks
-Confirm Luma registration and entrant eligibility. Publish the repository and host the walkthrough. Review the completed Vibe Apps form before the final submission. A public post tagging the sponsors is required by the event and has not been published from this task.
+Confirm Luma registration and entrant eligibility. Public repository and hosted 86-second captioned walkthrough are ready. Review the completed Vibe Apps form before the final submission. A public post tagging the sponsors is required by the event and has not been published from this task.
