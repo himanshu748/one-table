@@ -65,7 +65,7 @@ async function message(
 describe("private workspace and quote lifecycle", () => {
   it("requires authentication to create an event", async () => {
     const t = convexTest(schema, modules);
-  rateLimiterTest.register(t);
+    rateLimiterTest.register(t);
     await expect(
       t.mutation(api.events.create, {
         title: "Reception",
@@ -161,54 +161,163 @@ describe("private workspace and quote lifecycle", () => {
 
 describe("clarification consent and quote continuity", () => {
   it("requires consent and claims a queued clarification only once", async () => {
-    const {t,eventId,vendorId} = await setup();
-    const messageId = await message(t,eventId,vendorId,100);
-    await t.mutation(internal.inbound.saveQuote,{messageId,extracted,pricingFlag:null});
+    const { t, eventId, vendorId } = await setup();
+    const messageId = await message(t, eventId, vendorId, 100);
+    await t.mutation(internal.inbound.saveQuote, {
+      messageId,
+      extracted,
+      pricingFlag: null,
+    });
     process.env.PILOT_RECIPIENTS = "venue@example.com";
     try {
-      await t.run(ctx=>ctx.db.patch(vendorId,{followupState:"queued",autoFollowup:false}));
-      expect(await t.mutation(internal.vendors.claimFollowup,{vendorId,messageId})).toBe(false);
-      await t.run(ctx=>ctx.db.patch(vendorId,{followupState:"queued",autoFollowup:true}));
-      expect(await t.mutation(internal.vendors.claimFollowup,{vendorId,messageId})).toBe(true);
-      expect(await t.mutation(internal.vendors.claimFollowup,{vendorId,messageId})).toBe(false);
-    } finally {delete process.env.PILOT_RECIPIENTS;}
+      await t.run((ctx) =>
+        ctx.db.patch(vendorId, {
+          followupState: "queued",
+          autoFollowup: false,
+        }),
+      );
+      expect(
+        await t.mutation(internal.vendors.claimFollowup, {
+          vendorId,
+          messageId,
+        }),
+      ).toBe(false);
+      await t.run((ctx) =>
+        ctx.db.patch(vendorId, { followupState: "queued", autoFollowup: true }),
+      );
+      expect(
+        await t.mutation(internal.vendors.claimFollowup, {
+          vendorId,
+          messageId,
+        }),
+      ).toBe(true);
+      expect(
+        await t.mutation(internal.vendors.claimFollowup, {
+          vendorId,
+          messageId,
+        }),
+      ).toBe(false);
+    } finally {
+      delete process.env.PILOT_RECIPIENTS;
+    }
   });
   it("combines a tax clarification with its original price and records both sources", async () => {
-    const {t,eventId,vendorId} = await setup();
-    const first = await message(t,eventId,vendorId,100);
-    await t.mutation(internal.inbound.saveQuote,{messageId:first,extracted:{...extracted,taxes_included:false,tax_percent:null},pricingFlag:null});
-    await t.run(ctx=>ctx.db.insert("messages",{eventId,vendorId,direction:"out",agentmailMessageId:"out-test",subject:"GST?",body:"What rate?",receivedAt:150,askedAbout:["tax_percent"],attachmentIds:[]}));
-    const second = await message(t,eventId,vendorId,200);
-    await t.mutation(internal.inbound.saveQuote,{messageId:second,extracted:{...extracted,reply_kind:"no_price",pricing_model:"unknown",per_head_veg:null,taxes_included:null,tax_percent:18,min_guarantee_covers:null,lead_time_days:null},pricingFlag:null});
-    const live = await t.run(ctx=>ctx.db.query("quotes").withIndex("by_vendor_live",q=>q.eq("vendorId",vendorId).eq("supersededAt",null)).unique());
+    const { t, eventId, vendorId } = await setup();
+    const first = await message(t, eventId, vendorId, 100);
+    await t.mutation(internal.inbound.saveQuote, {
+      messageId: first,
+      extracted: { ...extracted, taxes_included: false, tax_percent: null },
+      pricingFlag: null,
+    });
+    await t.run((ctx) =>
+      ctx.db.insert("messages", {
+        eventId,
+        vendorId,
+        direction: "out",
+        agentmailMessageId: "out-test",
+        subject: "GST?",
+        body: "What rate?",
+        receivedAt: 150,
+        askedAbout: ["tax_percent"],
+        attachmentIds: [],
+      }),
+    );
+    const second = await message(t, eventId, vendorId, 200);
+    await t.mutation(internal.inbound.saveQuote, {
+      messageId: second,
+      extracted: {
+        ...extracted,
+        reply_kind: "no_price",
+        pricing_model: "unknown",
+        per_head_veg: null,
+        taxes_included: null,
+        tax_percent: 18,
+        min_guarantee_covers: null,
+        lead_time_days: null,
+      },
+      pricingFlag: null,
+    });
+    const live = await t.run((ctx) =>
+      ctx.db
+        .query("quotes")
+        .withIndex("by_vendor_live", (q) =>
+          q.eq("vendorId", vendorId).eq("supersededAt", null),
+        )
+        .unique(),
+    );
     expect(live?.normalisedTotal).toBe(141600);
-    expect(live?.sourceMessageIds).toEqual([first,second]);
+    expect(live?.sourceMessageIds).toEqual([first, second]);
   });
   it("an autoresponder does not erase an existing quote", async () => {
-    const {t,eventId,vendorId} = await setup();
-    const first = await message(t,eventId,vendorId,100);
-    await t.mutation(internal.inbound.saveQuote,{messageId:first,extracted,pricingFlag:null});
-    const second = await message(t,eventId,vendorId,200);
-    await t.mutation(internal.inbound.saveQuote,{messageId:second,extracted:{...extracted,reply_kind:"auto_reply",pricing_model:"unknown",per_head_veg:null},pricingFlag:null});
-    const quotes = await t.run(ctx=>ctx.db.query("quotes").collect());
+    const { t, eventId, vendorId } = await setup();
+    const first = await message(t, eventId, vendorId, 100);
+    await t.mutation(internal.inbound.saveQuote, {
+      messageId: first,
+      extracted,
+      pricingFlag: null,
+    });
+    const second = await message(t, eventId, vendorId, 200);
+    await t.mutation(internal.inbound.saveQuote, {
+      messageId: second,
+      extracted: {
+        ...extracted,
+        reply_kind: "auto_reply",
+        pricing_model: "unknown",
+        per_head_veg: null,
+      },
+      pricingFlag: null,
+    });
+    const quotes = await t.run((ctx) => ctx.db.query("quotes").collect());
     expect(quotes).toHaveLength(1);
     expect(quotes[0].supersededAt).toBeNull();
   });
   it("rejects an incoming sender outside the recorded venue thread", async () => {
-    const {t,vendorId,eventId} = await setup();
-    await t.run(ctx=>ctx.db.patch(vendorId,{threadId:"thread-test"}));
-    await t.run(ctx=>ctx.db.patch(eventId,{agentInboxId:"buyer@example.com"}));
-    expect(await t.mutation(internal.inbound.recordReply,{agentmailMessageId:"test-incoming",threadId:"thread-test",inboxId:"buyer@example.com",from:"other@example.com",subject:"Hello",body:"Quote",receivedAt:100})).toBeNull();
+    const { t, vendorId, eventId } = await setup();
+    await t.run((ctx) => ctx.db.patch(vendorId, { threadId: "thread-test" }));
+    await t.run((ctx) =>
+      ctx.db.patch(eventId, { agentInboxId: "buyer@example.com" }),
+    );
+    expect(
+      await t.mutation(internal.inbound.recordReply, {
+        agentmailMessageId: "test-incoming",
+        threadId: "thread-test",
+        inboxId: "buyer@example.com",
+        from: "other@example.com",
+        subject: "Hello",
+        body: "Quote",
+        receivedAt: 100,
+      }),
+    ).toBeNull();
   });
 });
 
 it("a no-price acknowledgement preserves the current quote", async () => {
-  const {t,eventId,vendorId} = await setup();
-  const first = await message(t,eventId,vendorId,100);
-  await t.mutation(internal.inbound.saveQuote,{messageId:first,extracted,pricingFlag:null});
-  const second = await message(t,eventId,vendorId,200);
-  await t.mutation(internal.inbound.saveQuote,{messageId:second,extracted:{...extracted,reply_kind:"no_price",pricing_model:"unknown",per_head_veg:null},pricingFlag:null});
-  const live = await t.run(ctx=>ctx.db.query("quotes").withIndex("by_vendor_live",q=>q.eq("vendorId",vendorId).eq("supersededAt",null)).unique());
+  const { t, eventId, vendorId } = await setup();
+  const first = await message(t, eventId, vendorId, 100);
+  await t.mutation(internal.inbound.saveQuote, {
+    messageId: first,
+    extracted,
+    pricingFlag: null,
+  });
+  const second = await message(t, eventId, vendorId, 200);
+  await t.mutation(internal.inbound.saveQuote, {
+    messageId: second,
+    extracted: {
+      ...extracted,
+      reply_kind: "no_price",
+      pricing_model: "unknown",
+      per_head_veg: null,
+    },
+    pricingFlag: null,
+  });
+  const live = await t.run((ctx) =>
+    ctx.db
+      .query("quotes")
+      .withIndex("by_vendor_live", (q) =>
+        q.eq("vendorId", vendorId).eq("supersededAt", null),
+      )
+      .unique(),
+  );
   expect(live?.messageId).toBe(first);
   expect(live?.normalisedTotal).toBe(120000);
 });
@@ -216,122 +325,259 @@ it("a no-price acknowledgement preserves the current quote", async () => {
 describe("public trial sending", () => {
   async function verifiedSetup() {
     const state = await setup();
-    await state.t.run(async ctx=>{
+    await state.t.run(async (ctx) => {
       const event = await ctx.db.get(state.eventId);
-      await ctx.db.patch(event!.userId,{email:"buyer@example.com",emailVerificationTime:Date.now()});
+      await ctx.db.patch(event!.userId, {
+        email: "buyer@example.com",
+        emailVerificationTime: Date.now(),
+      });
     });
     return state;
   }
-  it("requires verification even when public sending is enabled", async()=>{
-    process.env.PUBLIC_SENDING_ENABLED="true";
+  it("requires verification even when public sending is enabled", async () => {
+    process.env.PUBLIC_SENDING_ENABLED = "true";
     try {
-      const {owner,vendorId}=await setup();
-      await expect(owner.mutation(api.vendors.approveRfq,{vendorId})).rejects.toThrow("Verify your email");
-    } finally {delete process.env.PUBLIC_SENDING_ENABLED;}
+      const { owner, vendorId } = await setup();
+      await expect(
+        owner.mutation(api.vendors.approveRfq, { vendorId }),
+      ).rejects.toThrow("Verify your email");
+    } finally {
+      delete process.env.PUBLIC_SENDING_ENABLED;
+    }
   });
-  it("allows a verified user to queue an ordinary contact, but never twice", async()=>{
-    process.env.PUBLIC_SENDING_ENABLED="true";
+  it("allows a verified user to queue an ordinary contact, but never twice", async () => {
+    process.env.PUBLIC_SENDING_ENABLED = "true";
     try {
-      const {owner,t,vendorId}=await verifiedSetup();
-      await owner.mutation(api.vendors.approveRfq,{vendorId});
-      expect((await t.run(ctx=>ctx.db.get(vendorId)))?.outboundState).toBe("queued");
-      await expect(owner.mutation(api.vendors.approveRfq,{vendorId})).rejects.toThrow("already queued");
-      expect(await t.mutation(internal.vendors.claimSend,{vendorId})).toBe(true);
-      expect(await t.mutation(internal.vendors.claimSend,{vendorId})).toBe(false);
-    } finally {delete process.env.PUBLIC_SENDING_ENABLED;}
+      const { owner, t, vendorId } = await verifiedSetup();
+      await owner.mutation(api.vendors.approveRfq, { vendorId });
+      expect((await t.run((ctx) => ctx.db.get(vendorId)))?.outboundState).toBe(
+        "queued",
+      );
+      await expect(
+        owner.mutation(api.vendors.approveRfq, { vendorId }),
+      ).rejects.toThrow("already queued");
+      expect(await t.mutation(internal.vendors.claimSend, { vendorId })).toBe(
+        true,
+      );
+      expect(await t.mutation(internal.vendors.claimSend, { vendorId })).toBe(
+        false,
+      );
+    } finally {
+      delete process.env.PUBLIC_SENDING_ENABLED;
+    }
   });
-  it("enforces three contacts per event", async()=>{
-    process.env.PUBLIC_SENDING_ENABLED="true";
+  it("enforces three contacts per event", async () => {
+    process.env.PUBLIC_SENDING_ENABLED = "true";
     try {
-      const {owner,eventId}=await verifiedSetup();
-      for(let i=0;i<3;i++) {
-        const vendorId=await owner.mutation(api.vendors.add,{eventId,name:`Venue ${i}`,email:`v${i}@example.com`});
-        await owner.mutation(api.vendors.approveRfq,{vendorId});
+      const { owner, eventId } = await verifiedSetup();
+      for (let i = 0; i < 3; i++) {
+        const vendorId = await owner.mutation(api.vendors.add, {
+          eventId,
+          name: `Venue ${i}`,
+          email: `v${i}@example.com`,
+        });
+        await owner.mutation(api.vendors.approveRfq, { vendorId });
       }
-      const fourth=await owner.mutation(api.vendors.add,{eventId,name:"Fourth",email:"fourth@example.com"});
-      await expect(owner.mutation(api.vendors.approveRfq,{vendorId:fourth})).rejects.toThrow("three venues");
-    } finally {delete process.env.PUBLIC_SENDING_ENABLED;}
+      const fourth = await owner.mutation(api.vendors.add, {
+        eventId,
+        name: "Fourth",
+        email: "fourth@example.com",
+      });
+      await expect(
+        owner.mutation(api.vendors.approveRfq, { vendorId: fourth }),
+      ).rejects.toThrow("three venues");
+    } finally {
+      delete process.env.PUBLIC_SENDING_ENABLED;
+    }
   });
-  it("enforces account quota across events", async()=>{
-    process.env.PUBLIC_SENDING_ENABLED="true";
+  it("enforces account quota across events", async () => {
+    process.env.PUBLIC_SENDING_ENABLED = "true";
     try {
-      const {owner}=await verifiedSetup();
-      for(let i=0;i<6;i++) {
-        const eventId=await owner.mutation(api.events.create,{title:`Event ${i}`,city:"Mumbai",eventDate:"2027-02-14",headcount:120,dietary:"veg"});
-        const vendorId=await owner.mutation(api.vendors.add,{eventId,name:`Venue ${i}`,email:`limit${i}@example.com`});
-        if(i<5) await owner.mutation(api.vendors.approveRfq,{vendorId});
-        else await expect(owner.mutation(api.vendors.approveRfq,{vendorId})).rejects.toThrow();
+      const { owner } = await verifiedSetup();
+      for (let i = 0; i < 6; i++) {
+        const eventId = await owner.mutation(api.events.create, {
+          title: `Event ${i}`,
+          city: "Mumbai",
+          eventDate: "2027-02-14",
+          headcount: 120,
+          dietary: "veg",
+        });
+        const vendorId = await owner.mutation(api.vendors.add, {
+          eventId,
+          name: `Venue ${i}`,
+          email: `limit${i}@example.com`,
+        });
+        if (i < 5) await owner.mutation(api.vendors.approveRfq, { vendorId });
+        else
+          await expect(
+            owner.mutation(api.vendors.approveRfq, { vendorId }),
+          ).rejects.toThrow();
       }
-    } finally {delete process.env.PUBLIC_SENDING_ENABLED;}
+    } finally {
+      delete process.env.PUBLIC_SENDING_ENABLED;
+    }
   });
-  it("can disable public sends without affecting account access", async()=>{
-    const {owner,vendorId}=await verifiedSetup();
-    await expect(owner.mutation(api.vendors.approveRfq,{vendorId})).rejects.toThrow("pilot");
-    expect((await owner.query(api.account.current,{})).verified).toBe(true);
+  it("can disable public sends without affecting account access", async () => {
+    const { owner, vendorId } = await verifiedSetup();
+    await expect(
+      owner.mutation(api.vendors.approveRfq, { vendorId }),
+    ).rejects.toThrow("pilot");
+    expect((await owner.query(api.account.current, {})).verified).toBe(true);
   });
-  it("limits authentication email requests before contacting the provider", async()=>{
-    const {t}=await setup();
-    await t.mutation(internal.limits.reserveAuthEmail,{email:"test@example.com"});
-    await expect(t.mutation(internal.limits.reserveAuthEmail,{email:"test@example.com"})).rejects.toThrow("Too many");
+  it("limits authentication email requests before contacting the provider", async () => {
+    const { t } = await setup();
+    await t.mutation(internal.limits.reserveAuthEmail, {
+      email: "test@example.com",
+    });
+    await expect(
+      t.mutation(internal.limits.reserveAuthEmail, {
+        email: "test@example.com",
+      }),
+    ).rejects.toThrow("Too many");
   });
 });
 
-describe("brief, shortlist and attachments",()=>{
- it("persists the full brief and refuses invalid budgets",async()=>{
-  const {owner}=await setup();
-  const args={title:"Birthday",city:"Mumbai",eventDate:"2027-03-12",headcount:80,dietary:"both" as const,neighbourhood:"Bandra",eventType:"Birthday",dateFlexible:true,needs:["Parking"],budgetHint:150000};
-  const id=await owner.mutation(api.events.create,args);
-  const board=await owner.query(api.board.forEvent,{eventId:id});
-  expect(board.event).toMatchObject(args);
-  await expect(owner.mutation(api.events.create,{...args,budgetHint:-1})).rejects.toThrow("budget");
- });
- it("persists shortlist selection and refuses another owner",async()=>{
-  const {t,owner,vendorId,eventId}=await setup();
-  await owner.mutation(api.vendors.shortlist,{vendorId,selected:true});
-  expect((await owner.query(api.board.forEvent,{eventId})).rows[0].shortlisted).toBe(true);
-  await expect(t.mutation(api.vendors.shortlist,{vendorId,selected:false})).rejects.toThrow();
-  await expect(t.mutation(internal.attachmentData.reserve,{vendorId})).rejects.toThrow();
- });
- it("does not expose original attachment links to another session",async()=>{
-  const {t,owner,vendorId,eventId}=await setup();
-  const id=await message(t,eventId,vendorId,600);
-  expect(await owner.query(api.attachmentData.forMessage,{messageId:id})).toEqual([]);
-  await expect(t.query(api.attachmentData.forMessage,{messageId:id})).rejects.toThrow();
- });
- it("rejects duplicate batch recipients without queueing anything",async()=>{
-  const {owner,vendorId,eventId}=await setup();
-  await expect(owner.mutation(api.vendors.approveBatch,{eventId,vendorIds:[vendorId,vendorId],autoFollowup:false})).rejects.toThrow("different");
-  expect((await owner.query(api.board.forEvent,{eventId})).rows[0].deliveryState).toBe(null);
- });
- it("never schedules a clarification for an uploaded document",async()=>{
-  const {t,eventId,vendorId}=await setup();
-  await t.run(ctx=>ctx.db.patch(vendorId,{autoFollowup:true,threadId:"real-thread"}));
-  const id=await message(t,eventId,vendorId,700);
-  await t.run(ctx=>ctx.db.patch(id,{agentmailMessageId:"upload:controlled"}));
-  await t.mutation(internal.inbound.saveQuote,{messageId:id,extracted:{...extracted,taxes_included:null},pricingFlag:null});
-  const venue=await t.run(ctx=>ctx.db.get(vendorId));expect(venue?.followupState).toBeUndefined();
- });
+describe("brief, shortlist and attachments", () => {
+  it("persists the full brief and refuses invalid budgets", async () => {
+    const { owner } = await setup();
+    const args = {
+      title: "Birthday",
+      city: "Mumbai",
+      eventDate: "2027-03-12",
+      headcount: 80,
+      dietary: "both" as const,
+      neighbourhood: "Bandra",
+      eventType: "Birthday",
+      dateFlexible: true,
+      needs: ["Parking"],
+      budgetHint: 150000,
+    };
+    const id = await owner.mutation(api.events.create, args);
+    const board = await owner.query(api.board.forEvent, { eventId: id });
+    expect(board.event).toMatchObject(args);
+    await expect(
+      owner.mutation(api.events.create, { ...args, budgetHint: -1 }),
+    ).rejects.toThrow("budget");
+  });
+  it("persists shortlist selection and refuses another owner", async () => {
+    const { t, owner, vendorId, eventId } = await setup();
+    await owner.mutation(api.vendors.shortlist, { vendorId, selected: true });
+    expect(
+      (await owner.query(api.board.forEvent, { eventId })).rows[0].shortlisted,
+    ).toBe(true);
+    await expect(
+      t.mutation(api.vendors.shortlist, { vendorId, selected: false }),
+    ).rejects.toThrow();
+    await expect(
+      t.mutation(internal.attachmentData.reserve, { vendorId }),
+    ).rejects.toThrow();
+  });
+  it("does not expose original attachment links to another session", async () => {
+    const { t, owner, vendorId, eventId } = await setup();
+    const id = await message(t, eventId, vendorId, 600);
+    expect(
+      await owner.query(api.attachmentData.forMessage, { messageId: id }),
+    ).toEqual([]);
+    await expect(
+      t.query(api.attachmentData.forMessage, { messageId: id }),
+    ).rejects.toThrow();
+  });
+  it("rejects duplicate batch recipients without queueing anything", async () => {
+    const { owner, vendorId, eventId } = await setup();
+    await expect(
+      owner.mutation(api.vendors.approveBatch, {
+        eventId,
+        vendorIds: [vendorId, vendorId],
+        autoFollowup: false,
+      }),
+    ).rejects.toThrow("different");
+    expect(
+      (await owner.query(api.board.forEvent, { eventId })).rows[0]
+        .deliveryState,
+    ).toBe(null);
+  });
+  it("never schedules a clarification for an uploaded document", async () => {
+    const { t, eventId, vendorId } = await setup();
+    await t.run((ctx) =>
+      ctx.db.patch(vendorId, { autoFollowup: true, threadId: "real-thread" }),
+    );
+    const id = await message(t, eventId, vendorId, 700);
+    await t.run((ctx) =>
+      ctx.db.patch(id, { agentmailMessageId: "upload:controlled" }),
+    );
+    await t.mutation(internal.inbound.saveQuote, {
+      messageId: id,
+      extracted: { ...extracted, taxes_included: null },
+      pricingFlag: null,
+    });
+    const venue = await t.run((ctx) => ctx.db.get(vendorId));
+    expect(venue?.followupState).toBeUndefined();
+  });
 });
 
-it("queues a selected batch atomically and rolls back when one venue is already sent",async()=>{
- process.env.PUBLIC_SENDING_ENABLED="true";
- try{
-  const {t,owner,eventId,vendorId}=await setup();
-  await t.run(async ctx=>{const event=await ctx.db.get(eventId);await ctx.db.patch(event!.userId,{email:"buyer@example.com",emailVerificationTime:Date.now()});});
-  const second=await owner.mutation(api.vendors.add,{eventId,name:"Second",email:"second@example.com"});
-  await owner.mutation(api.vendors.approveBatch,{eventId,vendorIds:[vendorId,second],autoFollowup:false});
-  expect((await owner.query(api.board.forEvent,{eventId})).rows.every(r=>r.deliveryState==="queued")).toBe(true);
-  const third=await owner.mutation(api.vendors.add,{eventId,name:"Third",email:"third@example.com"});
-  await expect(owner.mutation(api.vendors.approveBatch,{eventId,vendorIds:[third,second],autoFollowup:false})).rejects.toThrow("already queued");
-  expect((await t.run(ctx=>ctx.db.get(third)))?.outboundState).toBeUndefined();
- }finally{delete process.env.PUBLIC_SENDING_ENABLED;}
+it("queues a selected batch atomically and rolls back when one venue is already sent", async () => {
+  process.env.PUBLIC_SENDING_ENABLED = "true";
+  try {
+    const { t, owner, eventId, vendorId } = await setup();
+    await t.run(async (ctx) => {
+      const event = await ctx.db.get(eventId);
+      await ctx.db.patch(event!.userId, {
+        email: "buyer@example.com",
+        emailVerificationTime: Date.now(),
+      });
+    });
+    const second = await owner.mutation(api.vendors.add, {
+      eventId,
+      name: "Second",
+      email: "second@example.com",
+    });
+    await owner.mutation(api.vendors.approveBatch, {
+      eventId,
+      vendorIds: [vendorId, second],
+      autoFollowup: false,
+    });
+    expect(
+      (await owner.query(api.board.forEvent, { eventId })).rows.every(
+        (r) => r.deliveryState === "queued",
+      ),
+    ).toBe(true);
+    const third = await owner.mutation(api.vendors.add, {
+      eventId,
+      name: "Third",
+      email: "third@example.com",
+    });
+    await expect(
+      owner.mutation(api.vendors.approveBatch, {
+        eventId,
+        vendorIds: [third, second],
+        autoFollowup: false,
+      }),
+    ).rejects.toThrow("already queued");
+    expect(
+      (await t.run((ctx) => ctx.db.get(third)))?.outboundState,
+    ).toBeUndefined();
+  } finally {
+    delete process.env.PUBLIC_SENDING_ENABLED;
+  }
 });
-it("keeps previous quote terms available only to their owner",async()=>{
- const {t,owner,eventId,vendorId}=await setup();
- const first=await message(t,eventId,vendorId,100);
- await t.mutation(internal.inbound.saveQuote,{messageId:first,extracted,pricingFlag:null});
- const second=await message(t,eventId,vendorId,200);
- await t.mutation(internal.inbound.saveQuote,{messageId:second,extracted:{...extracted,per_head_veg:1200},pricingFlag:null});
- const history=await owner.query(api.messages.quoteHistory,{vendorId});expect(history).toHaveLength(2);expect(history.filter(q=>q.supersededAt===null)).toHaveLength(1);
- await expect(t.query(api.messages.quoteHistory,{vendorId})).rejects.toThrow();
+it("keeps previous quote terms available only to their owner", async () => {
+  const { t, owner, eventId, vendorId } = await setup();
+  const first = await message(t, eventId, vendorId, 100);
+  await t.mutation(internal.inbound.saveQuote, {
+    messageId: first,
+    extracted,
+    pricingFlag: null,
+  });
+  const second = await message(t, eventId, vendorId, 200);
+  await t.mutation(internal.inbound.saveQuote, {
+    messageId: second,
+    extracted: { ...extracted, per_head_veg: 1200 },
+    pricingFlag: null,
+  });
+  const history = await owner.query(api.messages.quoteHistory, { vendorId });
+  expect(history).toHaveLength(2);
+  expect(history.filter((q) => q.supersededAt === null)).toHaveLength(1);
+  await expect(
+    t.query(api.messages.quoteHistory, { vendorId }),
+  ).rejects.toThrow();
 });

@@ -1,11 +1,13 @@
 # One Table
 
-Continuation of Claude's approved Convex All Gas hackathon build, September 8, 2026.
+Families comparing venues need to understand quotes at the same guest count. One Table retains original replies and documents, shows missing terms and computes totals in code.
 
-An event buyer compares venue replies at one headcount. Prices retain their original message, absent terms stay unknown, and incomplete quotes cannot masquerade as the cheapest confirmed offer.
+The current workflow is email-code sign-in → private event brief → source-backed contact leads or manual contacts → saved shortlist → approved enquiries → original replies or uploaded quotes → OpenAI extraction → comparison and revision history → CSV export.
 
-Core path: private guest session → event → source-backed venue leads or manually added contacts → reviewed enquiry → original reply → OpenAI extraction → deterministic comparison → review missing terms → export.
+Convex owns authentication, private records, storage, scheduled work and live updates. Firecrawl finds venue contact pages. OpenAI extracts fields. AgentMail delivers enquiries, receives replies and sends one opted-in clarification for missing terms.
 
-Convex owns private events and reactive state. Firecrawl finds source contact leads. OpenAI extracts quoted fields. AgentMail handles reviewed enquiries, incoming replies and one opted-in clarification per venue. Public example data is fictional and separate from the private workspace.
+Verified users can contact three venues per event and send five enquiries per day. Email sign-in restores account access across devices. Legacy guests can migrate their events after verification. The example is fictional and stays separate from private event data.
 
-This is a controlled pilot. Guest identities have no cross-device recovery. Sending is restricted to explicitly configured pilot addresses. A controlled provider-delivered email loop is verified. A complete OpenAI regression run, human event-planner playtest, public repository and submission media remain separate evidence gates. No submission or prize claim is implied by deployment.
+Manual PDF/PNG/JPEG upload works. Automatic inbound email attachments, alternate-sender routing and published-pricing extraction remain unfinished. One Table does not book venues or negotiate contracts.
+
+The public repo, Vibe Apps submission and walkthrough are published. Controlled provider tests are documented in [hackathon.md](hackathon.md). Independent user feedback and Luma registration have not been verified.

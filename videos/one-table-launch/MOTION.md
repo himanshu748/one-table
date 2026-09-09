@@ -1,3 +1,5 @@
+> Archived September 8 animation source. This is not the current submitted browser walkthrough. Pilot restrictions described below are historical. See ../../hackathon.md for current behavior.
+
 # One Table motion direction
 
 Applied motion-design skill. Emotional intent: calm clarity after quote confusion. Personality: Premium, no bounce or overshoot. Signature easing: power3.out entrances, power2.out settling. Duration palette: 0.18s response, 0.55s panels, 0.8s hero reveals. Element movement remains below one-third of the canvas. Multi-card cascades stay within0.5s; timed email messages are narrative beats, not a stagger.

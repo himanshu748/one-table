@@ -12,7 +12,9 @@
     "deploy": "npx @convex-dev/static-hosting deploy",
     "extract:test": "node experiments/extraction/run.mjs",
     "test": "vitest run",
-    "deploy:pilot": "npx @convex-dev/static-hosting upload --build --dev"
+    "deploy:pilot": "npx @convex-dev/static-hosting upload --build --dev",
+    "format": "prettier --write src convex tests scripts experiments/extraction",
+    "format:check": "prettier --check src convex tests scripts experiments/extraction"
   },
   "dependencies": {
     "@auth/core": "^0.41.3",
@@ -31,6 +33,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
     "convex-test": "^0.0.56",
+    "prettier": "3.6.2",
     "typescript": "^5.7.2",
     "vite": "^6.0.3",
     "vitest": "^5.0.0"

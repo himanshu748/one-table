@@ -2,7 +2,36 @@
   "provider": "openai-via-vercel-gateway",
   "model": "openai/gpt-4.1",
   "headcount": 120,
-  "at": "2026-09-09T06:30:08.543Z",
+  "fixtureCount": 12,
+  "completedCount": 5,
+  "promptSha256": "2b6c9d7663041dc64bd3e4137a3d527c6bbb6431fb7dad6195adf3ec7f7a61ef",
+  "sourceCommit": "9b7c6c8739b0a34116ec6d9bde93c50997abcb81",
+  "sourceDirty": true,
+  "scores": {
+    "base": {
+      "fieldsRight": 65,
+      "fieldsTotal": 65,
+      "nullsRight": 35,
+      "nullsTotal": 35,
+      "totalsRight": 5,
+      "totalsTotal": 5
+    },
+    "hard": {
+      "fieldsRight": 0,
+      "fieldsTotal": 0,
+      "nullsRight": 0,
+      "nullsTotal": 0,
+      "totalsRight": 0,
+      "totalsTotal": 0
+    }
+  },
+  "errors": [
+    {
+      "id": "pitch-with-buried-price",
+      "error": "OpenAI 429: {\"error\":{\"message\":\"Free tier requests on this model are rate-limited. Upgrade to paid credits at https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%3Fmodal%3Dtop-up for unrestricted access.\",\"type\":\"rate_limit_exceeded\",\"param\":{\"error\":\"Free tier requests on this model are rate-limited. Upgrade to "
+    }
+  ],
+  "at": "2026-09-09T07:01:06.618Z",
   "results": [
     {
       "id": "sagar-per-head-split",
@@ -24,13 +53,13 @@
         "inclusions": [
           "2 welcome drinks",
           "4 starters",
-          "6 main course",
+          "6 main course dishes",
           "2 desserts",
-          "Unlimited soft drinks"
+          "unlimited soft drinks"
         ],
         "exclusions": [
           "DJ",
-          "Decoration"
+          "decoration"
         ],
         "unstated": [
           "package_total",
@@ -133,7 +162,6 @@
         "exclusions": [],
         "unstated": [
           "vendor_name",
-          "pricing_model",
           "per_head_veg",
           "per_head_nonveg",
           "package_total",
@@ -143,7 +171,8 @@
           "min_guarantee_covers",
           "taxes_included",
           "tax_percent",
-          "lead_time_days"
+          "lead_time_days",
+          "pricing_model"
         ]
       }
     },
@@ -161,7 +190,7 @@
         "hall_rent": null,
         "fnb_minimum": null,
         "min_guarantee_covers": null,
-        "taxes_included": null,
+        "taxes_included": false,
         "tax_percent": null,
         "lead_time_days": null,
         "inclusions": [],
@@ -173,7 +202,6 @@
           "hall_rent",
           "fnb_minimum",
           "min_guarantee_covers",
-          "taxes_included",
           "tax_percent",
           "lead_time_days",
           "inclusions",

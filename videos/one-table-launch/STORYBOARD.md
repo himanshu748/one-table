@@ -1,3 +1,5 @@
+> Archived September 8 animation source. This is not the current submitted browser walkthrough. Pilot restrictions described below are historical. See ../../hackathon.md for current behavior.
+
 ---
 mode: autonomous
 duration: 50

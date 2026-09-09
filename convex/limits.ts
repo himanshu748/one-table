@@ -16,25 +16,37 @@ export const limits = new RateLimiter(components.rateLimiter, {
   extractionGlobal: { kind: "fixed window", rate: 200, period: DAY },
 });
 export const reserveAuthEmail = internalMutation({
-  args: { email: v.string() }, returns: v.null(),
+  args: { email: v.string() },
+  returns: v.null(),
   handler: async (ctx, { email }) => {
-    if (!/^[^\s@<>;,]+@[^\s@<>;,]+\.[^\s@<>;,]+$/.test(email) || email.length > 254)
+    if (
+      !/^[^\s@<>;,]+@[^\s@<>;,]+\.[^\s@<>;,]+$/.test(email) ||
+      email.length > 254
+    )
       throw new ConvexError("Enter a valid email address.");
     for (const name of ["authCooldown", "authEmail", "authGlobal"] as const) {
-      const result = await limits.limit(ctx, name, name === "authGlobal" ? {} : {key: email});
-      if (!result.ok) throw new ConvexError("Too many sign-in requests. Please try again later.");
+      const result = await limits.limit(
+        ctx,
+        name,
+        name === "authGlobal" ? {} : { key: email },
+      );
+      if (!result.ok)
+        throw new ConvexError(
+          "Too many sign-in requests. Please try again later.",
+        );
     }
     return null;
   },
 });
 export const reserveExtraction = internalMutation({
-  args: { messageId: v.id("messages") }, returns: v.null(),
-  handler: async (ctx, {messageId}) => {
+  args: { messageId: v.id("messages") },
+  returns: v.null(),
+  handler: async (ctx, { messageId }) => {
     const message = await ctx.db.get(messageId);
-    const event = message && await ctx.db.get(message.eventId);
+    const event = message && (await ctx.db.get(message.eventId));
     if (!event) throw new ConvexError("Event unavailable.");
-    await limits.limit(ctx, "extraction", {key:event.userId, throws:true});
-    await limits.limit(ctx, "extractionGlobal", {throws:true});
+    await limits.limit(ctx, "extraction", { key: event.userId, throws: true });
+    await limits.limit(ctx, "extractionGlobal", { throws: true });
     return null;
   },
 });

@@ -27,12 +27,20 @@ async function request(path, body) {
 }
 const inboxId = get("AGENTMAIL_INBOX_ID");
 const base = "/inboxes/" + encodeURIComponent(inboxId) + "/webhooks";
-const url = "https://wooden-dogfish-387.convex.site/agentmail/inbound";
+const origin = process.env.WEBHOOK_ORIGIN;
+if (!origin)
+  throw new Error("Set WEBHOOK_ORIGIN to your public Convex HTTP origin.");
+const url = new URL("/agentmail/inbound", origin).href;
+if (new URL(url).protocol !== "https:")
+  throw new Error("Webhook origin must use HTTPS.");
 const hooks = await request(base);
 let hook = hooks.webhooks?.find((h) => h.url === url);
-if (!hook) hook = await request(base, {
-  url, event_types: ["message.received"], client_id: "one-table-inbound-v1",
-});
+if (!hook)
+  hook = await request(base, {
+    url,
+    event_types: ["message.received"],
+    client_id: "one-table-inbound-v1",
+  });
 if (!hook.secret)
   hook = await request(base + "/" + encodeURIComponent(hook.webhook_id));
 if (!hook.secret)

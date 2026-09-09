@@ -42,47 +42,59 @@ async function agentmail(path: string, body: unknown) {
 // reply inside their own thread asking only about that, and the grey cell on
 // the board fills in when they answer.
 export const askAboutGaps = internalAction({
-  args: { vendorId: v.id("vendors"), messageId: v.id("messages"), gaps: v.array(v.string()) },
+  args: {
+    vendorId: v.id("vendors"),
+    messageId: v.id("messages"),
+    gaps: v.array(v.string()),
+  },
   returns: v.null(),
   handler: async (ctx, args) => {
-    if (!(await ctx.runMutation(internal.vendors.claimFollowup, {vendorId: args.vendorId, messageId: args.messageId}))) return null;
+    if (
+      !(await ctx.runMutation(internal.vendors.claimFollowup, {
+        vendorId: args.vendorId,
+        messageId: args.messageId,
+      }))
+    )
+      return null;
     try {
-    const vendor = await ctx.runQuery(internal.vendors.forOutbound, {
-      vendorId: args.vendorId,
-    });
-    if (!vendor || vendor.threadId === null || !vendor.lastMessageId)
-      throw new Error("No incoming message available for reply");
+      const vendor = await ctx.runQuery(internal.vendors.forOutbound, {
+        vendorId: args.vendorId,
+      });
+      if (!vendor || vendor.threadId === null || !vendor.lastMessageId)
+        throw new Error("No incoming message available for reply");
 
-    // Never chase the same field twice. A vendor who ignored the question once
-    // is not going to answer it because we asked again.
-    const fresh = args.gaps.filter((g) => !vendor.alreadyAsked.includes(g));
-    if (fresh.length === 0) return null;
+      // Never chase the same field twice. A vendor who ignored the question once
+      // is not going to answer it because we asked again.
+      const fresh = args.gaps.filter((g) => !vendor.alreadyAsked.includes(g));
+      if (fresh.length === 0) return null;
 
-    const questions = fresh.map((g) => QUESTION[g]).filter(Boolean);
-    if (questions.length === 0) return null;
+      const questions = fresh.map((g) => QUESTION[g]).filter(Boolean);
+      if (questions.length === 0) return null;
 
-    const text =
-      `Thanks for the quote.\n\n` +
-      questions.map((q) => `- ${q}`).join("\n") +
-      `\n\nOnce I have that I can put your quote in front of the family alongside the others.`;
+      const text =
+        `Thanks for the quote.\n\n` +
+        questions.map((q) => `- ${q}`).join("\n") +
+        `\n\nOnce I have that I can put your quote in front of the family alongside the others.`;
 
-    if (!vendor.inboxId || !vendor.sendingAllowed)
-      throw new Error("Recipient is not enabled for the controlled pilot.");
-    const sent = await agentmail(
-      `/inboxes/${encodeURIComponent(vendor.inboxId!)}/messages/${encodeURIComponent(vendor.lastMessageId)}/reply`,
-      { text },
-    );
+      if (!vendor.inboxId || !vendor.sendingAllowed)
+        throw new Error("Recipient is not enabled for the controlled pilot.");
+      const sent = await agentmail(
+        `/inboxes/${encodeURIComponent(vendor.inboxId!)}/messages/${encodeURIComponent(vendor.lastMessageId)}/reply`,
+        { text },
+      );
 
-    await ctx.runMutation(internal.vendors.recordOutbound, {
-      vendorId: args.vendorId,
-      agentmailMessageId: sent.message_id,
-      subject: `Re: ${vendor.lastSubject}`,
-      body: text,
-      askedAbout: fresh,
-      status: "followup_sent",
-    });
+      await ctx.runMutation(internal.vendors.recordOutbound, {
+        vendorId: args.vendorId,
+        agentmailMessageId: sent.message_id,
+        subject: `Re: ${vendor.lastSubject}`,
+        body: text,
+        askedAbout: fresh,
+        status: "followup_sent",
+      });
     } catch {
-      await ctx.runMutation(internal.vendors.followupFailed, {vendorId: args.vendorId});
+      await ctx.runMutation(internal.vendors.followupFailed, {
+        vendorId: args.vendorId,
+      });
     }
     return null;
   },

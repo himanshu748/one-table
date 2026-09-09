@@ -1,3 +1,5 @@
+> Archived September 8 animation source. This is not the current submitted browser walkthrough. Pilot restrictions described below are historical. See ../../hackathon.md for current behavior.
+
 # One Table launch film
 
 50 seconds, landscape1920×1080,30fps. Text-led and silent. The saved HeyGen credential was rejected; no voice or music was generated.

@@ -52,7 +52,8 @@ export const recordReply = internalMutation({
       return null;
     const sender = args.from.match(/<([^>]+)>/)?.[1] ?? args.from;
     if (sender.trim().toLowerCase() !== vendor.email.toLowerCase()) return null;
-    if (args.body.length > 20000 || (args.replyText?.length ?? 0) > 20000) return null;
+    if (args.body.length > 20000 || (args.replyText?.length ?? 0) > 20000)
+      return null;
 
     const messageId = await ctx.db.insert("messages", {
       vendorId: vendor._id,
@@ -104,8 +105,11 @@ export const saveQuote = internalMutation({
     let extracted = args.extracted;
     const diet = event.dietary === "nonveg" ? "nonveg" : "veg";
     if (extracted.reply_kind === "auto_reply") {
-      await ctx.db.patch(message._id, {extractionStatus:"complete", extractionError:undefined});
-      return {gaps:[]};
+      await ctx.db.patch(message._id, {
+        extractionStatus: "complete",
+        extractionError: undefined,
+      });
+      return { gaps: [] };
     }
 
     // Retire the previous quote rather than overwriting it. A vendor who
@@ -119,14 +123,36 @@ export const saveQuote = internalMutation({
     let sourceMessageIds = [message._id];
     const previous = prior[0];
     if (previous) {
-      const sent = await ctx.db.query("messages").withIndex("by_vendor",q=>q.eq("vendorId", message.vendorId)).order("desc").take(20);
-      const followup = sent.find(m => m.direction === "out" && m.askedAbout.length > 0 && m.receivedAt < message.receivedAt);
-      const merged = mergeTerms(previous, extracted, followup?.askedAbout ?? []);
-      if (merged) { extracted = merged; sourceMessageIds = [...(previous.sourceMessageIds ?? [previous.messageId]), message._id]; }
+      const sent = await ctx.db
+        .query("messages")
+        .withIndex("by_vendor", (q) => q.eq("vendorId", message.vendorId))
+        .order("desc")
+        .take(20);
+      const followup = sent.find(
+        (m) =>
+          m.direction === "out" &&
+          m.askedAbout.length > 0 &&
+          m.receivedAt < message.receivedAt,
+      );
+      const merged = mergeTerms(
+        previous,
+        extracted,
+        followup?.askedAbout ?? [],
+      );
+      if (merged) {
+        extracted = merged;
+        sourceMessageIds = [
+          ...(previous.sourceMessageIds ?? [previous.messageId]),
+          message._id,
+        ];
+      }
     }
     if (previous && extracted.reply_kind === "no_price") {
-      await ctx.db.patch(message._id, {extractionStatus:"complete", extractionError:undefined});
-      return {gaps:[]};
+      await ctx.db.patch(message._id, {
+        extractionStatus: "complete",
+        extractionError: undefined,
+      });
+      return { gaps: [] };
     }
     const norm = normalise(extracted, event.headcount, diet);
     for (const p of prior) {
@@ -166,11 +192,22 @@ export const saveQuote = internalMutation({
       await ctx.db.patch(message.vendorId, { status: "complete" });
     }
     const vendor = await ctx.db.get(message.vendorId);
-    if (vendor?.autoFollowup && !vendor.followupState && vendor.threadId
-        && extracted.reply_kind === "quote" && gaps.length > 0
-        && !/^(manual:|upload:|qa-webhook:|fixture-)/.test(message.agentmailMessageId)) {
-      await ctx.db.patch(vendor._id, {followupState:"queued"});
-      await ctx.scheduler.runAfter(15000, internal.outbound.askAboutGaps, {vendorId:vendor._id, messageId:message._id, gaps});
+    if (
+      vendor?.autoFollowup &&
+      !vendor.followupState &&
+      vendor.threadId &&
+      extracted.reply_kind === "quote" &&
+      gaps.length > 0 &&
+      !/^(manual:|upload:|qa-webhook:|fixture-)/.test(
+        message.agentmailMessageId,
+      )
+    ) {
+      await ctx.db.patch(vendor._id, { followupState: "queued" });
+      await ctx.scheduler.runAfter(15000, internal.outbound.askAboutGaps, {
+        vendorId: vendor._id,
+        messageId: message._id,
+        gaps,
+      });
     }
     return { gaps };
   },

@@ -161,10 +161,16 @@ export const retry = mutation({
 });
 
 export const quoteHistory = query({
-  args:{vendorId:v.id("vendors")},returns:v.array(quoteDoc),
-  handler:async(ctx,{vendorId})=>{
-    const venue=await ctx.db.get(vendorId);if(!venue)throw new ConvexError("Venue not found.");
-    await ownedEvent(ctx,venue.eventId);
-    return await ctx.db.query("quotes").withIndex("by_vendor",q=>q.eq("vendorId",vendorId)).order("desc").take(20);
-  }
+  args: { vendorId: v.id("vendors") },
+  returns: v.array(quoteDoc),
+  handler: async (ctx, { vendorId }) => {
+    const venue = await ctx.db.get(vendorId);
+    if (!venue) throw new ConvexError("Venue not found.");
+    await ownedEvent(ctx, venue.eventId);
+    return await ctx.db
+      .query("quotes")
+      .withIndex("by_vendor", (q) => q.eq("vendorId", vendorId))
+      .order("desc")
+      .take(20);
+  },
 });

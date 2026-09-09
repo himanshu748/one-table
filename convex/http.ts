@@ -47,7 +47,10 @@ http.route({
       inboxId: m.inbox_id as string,
       from: m.from as string,
       subject: typeof m.subject === "string" ? m.subject : "",
-      replyText: typeof m.extracted_text === "string" && m.extracted_text.trim() ? m.extracted_text : undefined,
+      replyText:
+        typeof m.extracted_text === "string" && m.extracted_text.trim()
+          ? m.extracted_text
+          : undefined,
       body:
         typeof m.text === "string"
           ? m.text

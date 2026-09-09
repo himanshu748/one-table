@@ -30,8 +30,8 @@ export default function Board({
 }: {
   rows: BoardRow[];
   initialHeadcount: number;
-  initialDiet?: "veg"|"nonveg";
-  budget?: number|null;
+  initialDiet?: "veg" | "nonveg";
+  budget?: number | null;
   onSelect?: (id: string) => void;
   selectLabel?: string;
 }) {
@@ -92,7 +92,14 @@ export default function Board({
         String(headcount),
         diet,
         String(norm?.total ?? ""),
-        [norm?.blocker, norm?.isPreTax ? "Before tax" : "", ...(row.quote ? gapsWorthAsking(row.quote) : [])].filter(Boolean).join("; ") || (norm ? "Review original for extras" : "Awaiting quote"),
+        [
+          norm?.blocker,
+          norm?.isPreTax ? "Before tax" : "",
+          ...(row.quote ? gapsWorthAsking(row.quote) : []),
+        ]
+          .filter(Boolean)
+          .join("; ") ||
+          (norm ? "Review original for extras" : "Awaiting quote"),
       ]),
     ];
     const csv = values
@@ -151,13 +158,19 @@ export default function Board({
           {spread !== null
             ? ` · ${inr(spread)} between lowest and highest`
             : ""}
-          . Missing terms can change the order. Review taxes, service charges and compulsory extras in the original.
+          . Missing terms can change the order. Review taxes, service charges
+          and compulsory extras in the original.
         </p>
         <button className="quiet" onClick={download} disabled={!rows.length}>
           Export comparison
         </button>
       </div>
-      {budget && <p className="note">Budget checks use the stated prices only. Exclusions and unstated charges may add to the final bill.</p>}
+      {budget && (
+        <p className="note">
+          Budget checks use the stated prices only. Exclusions and unstated
+          charges may add to the final bill.
+        </p>
+      )}
       <table className="comparison">
         <caption className="sr-only">
           Venue quotes for {headcount} {diet} guests. Complete pricing first,
@@ -235,7 +248,15 @@ export default function Board({
                     {norm?.blocker ?? "No reply yet"}
                   </span>
                 )}
-                {budget && norm?.total != null && <p className="budget-note">{norm.total > budget ? `${inr(norm.total-budget)} over budget${norm.blocker ? " before missing costs" : ""}` : norm.blocker ? "Budget fit unconfirmed" : `${inr(budget-norm.total)} within budget`}</p>}
+                {budget && norm?.total != null && (
+                  <p className="budget-note">
+                    {norm.total > budget
+                      ? `${inr(norm.total - budget)} over budget${norm.blocker ? " before missing costs" : ""}`
+                      : norm.blocker
+                        ? "Budget fit unconfirmed"
+                        : `${inr(budget - norm.total)} within budget`}
+                  </p>
+                )}
                 {norm?.total != null && norm.blocker && (
                   <p className="note bite">{norm.blocker}</p>
                 )}

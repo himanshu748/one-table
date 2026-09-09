@@ -21,7 +21,9 @@ Convex provides email-code authentication, private records, queries, mutations, 
 
 Claude built the initial extraction experiment and comparison interface. Codex completed provider integrations, account verification, sending limits, document uploads, revision history and the guided workspace.
 
-Verification includes 53 automated tests and a controlled email loop between two owned inboxes: INR 1,250 plus 18% GST produced INR 177,000 for 120 guests. Separate fictional PDF and PNG uploads each produced INR 141,600 for 80 guests. Firecrawl returned real source pages; no real venues were contacted in these tests. Published-pricing extraction and automatic email attachment ingestion remain unfinished. Provider rate limits prevented completion of the twelve-fixture extraction benchmark. The linked 86-second walkthrough shows the earlier workspace and controlled email evidence.
+Verification includes 53 automated tests and a controlled email loop between two owned inboxes: INR 1,250 plus 18% GST produced INR 177,000 for 120 guests. Separate fictional PDF and PNG uploads each produced INR 141,600 for 80 guests. Firecrawl returned real source pages; no real venues were contacted in these tests. The current prompt scored 65/65 fields and 5/5 totals across five completed fixtures before gateway rate limits stopped the twelve-case run.
+
+The repository includes fictional PDF/image samples, expected totals, current mobile screenshots and an architecture diagram. Published-pricing extraction and automatic email attachment ingestion remain unfinished. The updated walkthrough shows the current brief, enquiry review, document workflow, comparison and revision history using saved fictional test evidence.
 
 ## Links
 - X launch thread: https://x.com/jhahimanshu653/status/2097279039463694526
@@ -34,13 +36,16 @@ Verification includes 53 automated tests and a controlled email loop between two
 - Name: Himanshu Jha (Vibe Apps profile)
 - Tags: AllGasHackathon, convex, OpenAI, Firecrawl, codex, AgentMail
 - Email: omit unless supplied for notifications
-- Screenshot: public landing and example comparison
+- Screenshots: public landing, example comparison, current event preferences and private test comparison
 
 ## Judge instructions
 Open the app without an invitation. Choose See how it works for the fictional example, or My events to verify your email and use a private workspace. For real sending, select contacts you intend to approach and review the enquiry. Please do not send fictional requests to real venues. You can paste a sample quote to try extraction without emailing anyone.
 
 ## Remaining platform checks
-Confirm Luma registration and entrant eligibility. Public repository and hosted 86-second captioned walkthrough are ready. The public Vibe Apps listing is saved; dedicated All Gas event inclusion remains unverified. The sponsor-tagged launch thread is published: https://x.com/jhahimanshu653/status/2097279039463694526
+Confirm Luma registration and entrant eligibility. Public repository and hosted 81-second captioned walkthrough are ready. The Vibe Apps submission is saved. The sponsor-tagged launch thread is published: https://x.com/jhahimanshu653/status/2097279039463694526
 
 
 September 9 update: the existing Vibe Apps description was saved and verified with the guided brief, document uploads, 53 tests, controlled provider evidence and current limitations. App, repository, Drive video and all six tags remain present. Browser QA verified both brief steps and separate event views; fixed Continue accidentally submitting before preferences. The viewport override did not change the actual 792px browser width, so this run does not establish a fresh phone-width pass.
+
+
+September 9 final cleanup: replaced the Drive video bytes in place with the 81-second current product walkthrough, retaining the public link. Saved the current Vibe Apps description and added two screenshots. Fresh phone-width checks supersede the earlier viewport limitation. Old notes above are dated historical evidence.

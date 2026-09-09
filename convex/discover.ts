@@ -56,7 +56,9 @@ export const findVendors = internalAction({
           name: String(page.title ?? url.hostname).slice(0, 120),
           email: emails[0].toLowerCase(),
           sourceUrl: url.href,
-          discoveryExcerpt: String(page.description || page.markdown).replace(/[#*\[\]]/g, "").slice(0,500),
+          discoveryExcerpt: String(page.description || page.markdown)
+            .replace(/[#*\[\]]/g, "")
+            .slice(0, 500),
         });
       }
       await ctx.runMutation(internal.discoveryData.finish, {
