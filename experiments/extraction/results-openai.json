@@ -2,7 +2,7 @@
   "provider": "openai-via-vercel-gateway",
   "model": "openai/gpt-4.1",
   "headcount": 120,
-  "at": "2026-09-08T08:47:19.756Z",
+  "at": "2026-09-09T06:30:08.543Z",
   "results": [
     {
       "id": "sagar-per-head-split",
@@ -72,8 +72,7 @@
           "hall_rent",
           "fnb_minimum",
           "min_guarantee_covers",
-          "tax_percent",
-          "min_guarantee_covers"
+          "tax_percent"
         ]
       }
     },
@@ -118,7 +117,7 @@
       "subject": "Re: Quote request",
       "extracted": {
         "reply_kind": "no_price",
-        "vendor_name": "Amit",
+        "vendor_name": null,
         "pricing_model": "unknown",
         "per_head_veg": null,
         "per_head_nonveg": null,
@@ -133,6 +132,8 @@
         "inclusions": [],
         "exclusions": [],
         "unstated": [
+          "vendor_name",
+          "pricing_model",
           "per_head_veg",
           "per_head_nonveg",
           "package_total",

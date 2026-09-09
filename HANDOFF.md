@@ -1,4 +1,4 @@
-# Integration handoff, updated September 8, 2026
+# Integration handoff, updated September 9, 2026
 
 Claude's original work is preserved. Codex completed the previously missing transport functions and connected a real private workspace. See README.md for current evidence; the original claim that a VITE_CONVEX_URL automatically switched the fixture board to live subscriptions was incorrect and is now fixed.
 
@@ -18,10 +18,10 @@ Inbox: `one-table-himanshu@agentmail.to`. The dedicated key has nine permissions
 
 ## Product gaps
 
-- Full OpenAI regression blocked by persistent gateway free-tier 429. Five of twelve fixtures completed: 63/65 fields, 34/35 unstated checks, 5/5 totals; do not report a full pass.
+- Full OpenAI regression blocked by persistent gateway free-tier 429. Five of twelve fixtures completed: 64/65 fields, 35/35 unstated checks, 5/5 totals; do not report a full pass.
 - Firecrawl currently discovers contact leads; published pricing extraction remains absent.
 - Term-only answers to requested clarifications merge into the prior quote with source IDs. Broad negotiation and arbitrary revision merging are intentionally unsupported.
-- Inbound alternate sales senders and attachment-only quotes need manual review.
+- Inbound alternate sales senders and automatic email attachments need manual review. Manual PDF/PNG/JPEG upload and extraction are supported.
 - Sending needs verified email and buyer approval, with three contacted venues per event and five enquiries per account per day. An opted-in, once-per-venue clarification runs after a quote; no timer reminders run.
 - Independent human playtest and Luma registration confirmation remain outstanding. Sponsor-tagged X launch is published and linked from the submission. Public source and walkthrough are on GitHub; Vibe Apps submission is verified at https://vibeapps.dev/s/one-table.
 

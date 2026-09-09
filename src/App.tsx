@@ -9,12 +9,18 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { ConvexError } from "convex/values";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
+import { enquiryText, type Brief } from "../convex/lib/brief";
+import EventBrief from "./EventBrief";
+import QuoteHistory from "./QuoteHistory";
+import Shortlist from "./Shortlist";
+import { QuoteUpload, OriginalAttachments } from "./QuoteUpload";
 import Board from "./Board";
 import Landing from "./Landing";
 import SignIn from "./SignIn";
 import demoReplies from "./demoReplies.json";
 import { demoRows, demoEvent } from "./demoData";
 import "./index.css";
+import "./workspace.css";
 const describe = (e: unknown) => {
   if (e instanceof ConvexError) {
     if (typeof e.data === "string") return e.data;
@@ -119,52 +125,14 @@ function EventWorkspace() {
   const { signOut } = useAuthActions();
   const events = useQuery(api.events.list);
   const config = useQuery(api.events.configuration);
-  const create = useMutation(api.events.create);
   const connection = useConvexConnectionState();
   const [id, setId] = useState<Id<"events"> | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  async function submit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setBusy(true);
-    setError("");
-    const d = new FormData(e.currentTarget);
-    try {
-      setId(
-        await create({
-          title: String(d.get("title")),
-          city: String(d.get("city")),
-          eventDate: String(d.get("date")),
-          headcount: Number(d.get("count")),
-          dietary: "veg",
-        }),
-      );
-    } catch (e) {
-      setError(describe(e));
-    } finally {
-      setBusy(false);
-    }
-  }
+  const [creating,setCreating] = useState(false);
   return (
     <>
       {account && !account.verified && <SignIn upgrading />}
       {account?.verified && <div className="section-heading account-bar"><span>{account.email} · Email verified</span><button className="quiet" onClick={()=>void signOut()}>Sign out</button></div>}
-      <div className="live-status">
-        <span className={connection.isWebSocketConnected ? "connected" : ""}>
-          {connection.isWebSocketConnected
-            ? "Connected to Convex"
-            : "Reconnecting…"}
-        </span>
-        <span>
-          {config?.extraction
-            ? "OpenAI extraction configured"
-            : "Extraction unavailable"}{" "}
-          ·{" "}
-          {config?.discovery
-            ? "Venue search configured"
-            : "Venue search unavailable"}
-        </span>
-      </div>
+      {!connection.isWebSocketConnected && <p className="connection-notice" role="status">Reconnecting. Your saved events will appear when you’re back online.</p>}
       {id ? (
         <>
           <button className="quiet back" onClick={() => setId(null)}>
@@ -172,78 +140,12 @@ function EventWorkspace() {
           </button>
           <LiveEvent key={id} id={id} />
         </>
-      ) : (
-        <>
-          <h1>
-            Your next gathering,
-            <br />
-            with the numbers in order.
-          </h1>
-          <p className="intro">
-            Start with the occasion and guest count. You review every enquiry
-            before it is sent.
-          </p>
-          {events === undefined ? (
-            <p role="status">Loading your events…</p>
-          ) : (
-            events.length > 0 && (
-              <section className="event-list" aria-label="Saved events">
-                {events.map((e) => (
-                  <button key={e.id} onClick={() => setId(e.id)}>
-                    <strong>{e.title}</strong>
-                    <span>{e.city} →</span>
-                  </button>
-                ))}
-              </section>
-            )
-          )}
-          <form className="form-panel" onSubmit={submit}>
-            <h2>Create an event</h2>
-            <div className="fields">
-              <label>
-                Occasion
-                <input
-                  name="title"
-                  required
-                  maxLength={100}
-                  placeholder="Family reception"
-                />
-              </label>
-              <label>
-                City
-                <input
-                  name="city"
-                  required
-                  maxLength={80}
-                  placeholder="Mumbai"
-                />
-              </label>
-              <label>
-                Event date
-                <input name="date" required type="date" />
-              </label>
-              <label>
-                Guests
-                <input
-                  name="count"
-                  required
-                  type="number"
-                  min={1}
-                  max={2000}
-                  defaultValue={120}
-                />
-              </label>
-            </div>
-            <button disabled={busy || !connection.isWebSocketConnected}>
-              {busy ? "Creating…" : "Create private event"}
-            </button>
-            {error && (
-              <p role="alert" className="error">
-                {error}
-              </p>
-            )}
-          </form>
-        </>
+      ) : creating ? <EventBrief discovery={config?.discovery ?? false} onCancel={()=>setCreating(false)} onCreated={id=>{setId(id);setCreating(false);}}/> : (
+        <section className="events-home">
+          <div className="events-heading"><div><h1>Your gatherings.</h1><p>Good company. A venue that adds up.</p></div><button onClick={()=>setCreating(true)}>Plan a gathering</button></div>
+          {events === undefined ? <p role="status">Loading your events…</p> : events.length ? <div className="event-list" aria-label="Saved events">{events.map((e)=><button key={e.id} onClick={()=>setId(e.id)}><span className="event-monogram" aria-hidden="true">{e.title.charAt(0)}</span><span className="event-name"><strong>{e.title}</strong><span>{e.city}</span></span><span className="event-open">Open event →</span></button>)}</div> : <div className="welcome-empty"><h2>The next occasion starts here.</h2><p>Tell us where, when and how many people. Compare venue replies together, with the original terms always close by.</p><button onClick={()=>setCreating(true)}>Create your first event</button></div>}
+          <p className="workspace-footnote">Your events are private. You approve enquiries before they’re sent.</p>
+        </section>
       )}
     </>
   );
@@ -253,6 +155,8 @@ function LiveEvent({ id }: { id: Id<"events"> }) {
   const discover = useMutation(api.events.discover);
   const add = useMutation(api.vendors.add);
   const [selected, setSelected] = useState<Id<"vendors"> | null>(null);
+  const [view,setView]=useState<"shortlist"|"compare"|"replies">("shortlist");
+  const openReplies=(id:Id<"vendors">)=>{setSelected(id);setView("replies");};
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   async function addVenue(e: FormEvent<HTMLFormElement>) {
@@ -268,7 +172,7 @@ function LiveEvent({ id }: { id: Id<"events"> }) {
         email: String(d.get("email")),
       });
       form.reset();
-      setSelected(vendor);
+      openReplies(vendor);
     } catch (e) {
       setError(describe(e));
     } finally {
@@ -278,17 +182,19 @@ function LiveEvent({ id }: { id: Id<"events"> }) {
   if (!board) return <p role="status">Loading the comparison…</p>;
   return (
     <>
-      <h1>{board.event.title}</h1>
+      <h1 className="event-title">{board.event.title}</h1>
       <p className="sub">
         {board.event.city} · {board.event.eventDate} · {board.rows.length}{" "}
         venues
       </p>
+      <div className="brief-summary"><span>{board.event.headcount} guests · {board.event.dietary === "both" ? "Both menus" : board.event.dietary === "nonveg" ? "Non-vegetarian" : "Vegetarian"}</span>{board.event.neighbourhood && <span>{board.event.neighbourhood}</span>}{board.event.dateFlexible && <span>Flexible dates</span>}{board.event.budgetHint && <span>Budget ₹{board.event.budgetHint.toLocaleString("en-IN")}</span>}{board.event.needs.map(n=><span key={n}>{n}</span>)}</div>
+      <nav className="event-navigation" aria-label="Event views">{(["shortlist","compare","replies"] as const).map(v=><button className={view===v?"selected":""} aria-pressed={view===v} key={v} onClick={()=>setView(v)}>{v==="shortlist"?"Shortlist":v==="compare"?"Compare quotes":"Replies & documents"}<span>{v==="shortlist"?board.rows.length:v==="compare"?board.rows.filter(r=>r.quote).length:""}</span></button>)}</nav>
+      {view==="shortlist" && <>
       <section className="venue-tools">
         <div>
-          <h2>Build your shortlist.</h2>
+          <h2>Find a place that fits.</h2>
           <p>
-            Search returns contact leads. Check each source before requesting a
-            quote.
+            Find contacts for your brief, then choose who to approach.
           </p>
           <button
             disabled={busy || board.event.discoveryStatus === "searching"}
@@ -306,7 +212,7 @@ function LiveEvent({ id }: { id: Id<"events"> }) {
           >
             {board.event.discoveryStatus === "searching"
               ? "Searching venue websites…"
-              : "Find venues with Firecrawl"}
+              : "Find venue contacts"}
           </button>
           {board.event.discoveryError && (
             <p className="error" role="alert">
@@ -314,8 +220,8 @@ function LiveEvent({ id }: { id: Id<"events"> }) {
             </p>
           )}
         </div>
-        <form onSubmit={addVenue}>
-          <h3>Or add a venue you know</h3>
+        <details className="manual-venue"><summary>Add a venue you know</summary><form onSubmit={addVenue}>
+
           <label>
             Venue name
             <input
@@ -337,16 +243,21 @@ function LiveEvent({ id }: { id: Id<"events"> }) {
           <button className="secondary" disabled={busy}>
             Add venue
           </button>
-        </form>
+        </form></details>
       </section>
       {error && (
         <p className="error" role="alert">
           {error}
         </p>
       )}
+      <Shortlist event={board.event} rows={board.rows} onOpen={openReplies} />
+      </>}
+      {view==="compare" && (
       <Board
+        initialDiet={board.diet}
+        budget={board.event.budgetHint}
         initialHeadcount={board.headcount}
-        onSelect={(s) => setSelected(s as Id<"vendors">)}
+        onSelect={(s) => openReplies(s as Id<"vendors">)}
         rows={board.rows.map((r) => ({
           id: r.vendorId,
           name: r.vendorName,
@@ -356,7 +267,9 @@ function LiveEvent({ id }: { id: Id<"events"> }) {
           pricingFlag: r.pricingFlag,
         }))}
       />
-      {selected && (
+      )}
+      {view==="replies" && <><div className="reply-selector"><label>Venue<select value={selected ?? ""} onChange={e=>setSelected(e.target.value as Id<"vendors">)}><option value="">Choose a venue</option>{board.rows.map(r=><option key={r.vendorId} value={r.vendorId}>{r.vendorName}</option>)}</select></label></div>{!selected && <div className="empty"><h2>Keep every conversation together.</h2><p>Choose a venue to read replies, upload a document or review an enquiry.</p></div>}</>}
+      {view==="replies" && selected && (
         <ReplyDesk
           key={selected}
           vendorId={selected}
@@ -371,7 +284,7 @@ function LiveEvent({ id }: { id: Id<"events"> }) {
           followupError={board.rows.find(r=>r.vendorId===selected)?.followupError ?? null}
           deliveryState={board.rows.find((r) => r.vendorId === selected)?.deliveryState ?? null}
           deliveryError={board.rows.find((r) => r.vendorId === selected)?.deliveryError ?? null}
-          close={() => setSelected(null)}
+          close={() => {setSelected(null);setView("shortlist");}}
         />
       )}
     </>
@@ -392,7 +305,7 @@ function ReplyDesk({
   vendorId: Id<"vendors">;
   name: string;
   email: string;
-  event: { title: string; city: string; headcount: number; eventDate: string };
+  event: Brief;
   close: () => void;
   deliveryState: string | null;
   deliveryError: string | null;
@@ -416,6 +329,7 @@ function ReplyDesk({
   const send = useMutation(api.vendors.approveRfq);
   const setAuto = useMutation(api.vendors.setAutoFollowup);
   const [allowFollowup, setAllowFollowup] = useState(false);
+  const [entry,setEntry]=useState<"none"|"upload"|"paste">("none");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -461,19 +375,7 @@ function ReplyDesk({
         <p>
           <strong>To:</strong> {email}
         </p>
-        <p>
-          Hello, I am pricing a {event.title.toLowerCase()} in {event.city} on{" "}
-          {event.eventDate} for {event.headcount} guests (veg).
-        </p>
-        <p>
-          Could you send your rate for that date, and confirm whether it
-          includes taxes, what the minimum cover count is, and how far ahead you
-          need confirmation?
-        </p>
-        <p>
-          I am comparing a few venues on the same basis, so a per-guest figure
-          is ideal. Thanks.
-        </p>
+        <pre>{enquiryText(event)}</pre>
         <p className="note">
           Verify your email to send. Public trial: 3 venues per event, 5 enquiries per day. Replies arrive here when venues respond.
         </p>
@@ -498,7 +400,9 @@ function ReplyDesk({
           Approve & send this enquiry
         </button>
       </details>
-      <form onSubmit={save}>
+      <div className="reply-actions"><button className="secondary" aria-pressed={entry==="upload"} onClick={()=>setEntry(entry==="upload"?"none":"upload")}>Upload a quote</button><button className="quiet" aria-pressed={entry==="paste"} onClick={()=>setEntry(entry==="paste"?"none":"paste")}>Paste an email</button></div>
+      {entry==="upload" && <QuoteUpload vendorId={vendorId} />}
+      {entry==="paste" && <form onSubmit={save}>
         <h3>Already have a reply?</h3>
         <p>
           Paste the venue’s email. It is saved privately and sent to OpenAI for
@@ -525,7 +429,7 @@ function ReplyDesk({
         <button disabled={busy}>
           {busy ? "Saving reply…" : "Save reply & extract quote"}
         </button>
-      </form>
+      </form>}
       {error && (
         <p className="error" role="alert">
           {error}
@@ -542,6 +446,7 @@ function ReplyDesk({
               : notice}
         </p>
       )}
+      <QuoteHistory vendorId={vendorId} />
       <h3>Original messages</h3>
       <p className="note">Clarification answers can complete an earlier quote. Read both source messages before relying on the combined total.</p>
       {messages === undefined ? (
@@ -558,13 +463,15 @@ function ReplyDesk({
                   ? "Sent"
                   : m.agentmailMessageId.startsWith("manual:")
                     ? "Pasted reply"
+                    : m.agentmailMessageId.startsWith("upload:") ? "Uploaded document"
                     : m.agentmailMessageId.startsWith("qa-webhook:")
                       ? "Webhook test"
                       : "Inbox reply"}{" "}
                 · {m.extractionStatus ?? "recorded"}
               </span>
             </summary>
-            <pre>{m.body}</pre>
+            <pre>{m.attachmentIds.length ? "Original quote supplied as an attachment." : m.body}</pre>
+            {m.attachmentIds.length > 0 && <OriginalAttachments messageId={m._id} />}
             {m.extractionError && (
               <>
                 <p className="error">{m.extractionError}</p>

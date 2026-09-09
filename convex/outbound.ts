@@ -4,6 +4,8 @@ import { v } from "convex/values";
 import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 
+import { enquiryText } from "./lib/brief";
+
 const AGENTMAIL = "https://api.agentmail.to/v0";
 
 // One question per missing field, phrased the way a buyer would actually ask.
@@ -105,20 +107,7 @@ export const sendRfq = internalAction({
       if (!vendor) return null;
 
       const e = vendor.event;
-      const capacityLine =
-        vendor.publishedCapacity !== null
-          ? ` I saw you seat up to ${vendor.publishedCapacity}, so ${e.headcount} should be comfortable.`
-          : "";
-
-      const text =
-        `Hello,\n\n` +
-        `I am pricing a ${e.title.toLowerCase()} in ${e.city} on ${e.eventDate} for ${e.headcount} guests` +
-        ` (${e.dietary === "both" ? "veg and non-veg" : e.dietary}).${capacityLine}\n\n` +
-        `Could you send your rate for that date, and confirm whether it includes taxes,` +
-        ` what the minimum cover count is, and how far ahead you need confirmation?\n\n` +
-        (e.needs.length ? `We also need: ${e.needs.join(", ")}.\n\n` : "") +
-        `I am comparing a few venues on the same basis, so a per-guest figure is ideal.\n\n` +
-        `Thanks.`;
+      const text = enquiryText(e);
 
       if (!vendor.inboxId || !vendor.sendingAllowed)
         throw new Error("Recipient is not enabled for the controlled pilot.");

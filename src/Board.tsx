@@ -23,16 +23,20 @@ const labels: Record<string, string> = {
 export default function Board({
   rows,
   initialHeadcount,
+  initialDiet = "veg",
+  budget,
   onSelect,
   selectLabel = "Open replies & enquiry →",
 }: {
   rows: BoardRow[];
   initialHeadcount: number;
+  initialDiet?: "veg"|"nonveg";
+  budget?: number|null;
   onSelect?: (id: string) => void;
   selectLabel?: string;
 }) {
   const [headcount, setHeadcount] = useState(initialHeadcount);
-  const [diet, setDiet] = useState<"veg" | "nonveg">("veg");
+  const [diet, setDiet] = useState<"veg" | "nonveg">(initialDiet);
   const body = useRef<HTMLTableSectionElement>(null);
   const previous = useRef(new Map<string, number>());
   const scored = useMemo(
@@ -88,7 +92,7 @@ export default function Board({
         String(headcount),
         diet,
         String(norm?.total ?? ""),
-        norm?.blocker ?? (norm ? "" : "Awaiting quote"),
+        [norm?.blocker, norm?.isPreTax ? "Before tax" : "", ...(row.quote ? gapsWorthAsking(row.quote) : [])].filter(Boolean).join("; ") || (norm ? "Review original for extras" : "Awaiting quote"),
       ]),
     ];
     const csv = values
@@ -142,20 +146,21 @@ export default function Board({
       </div>
       <div className="comparison-summary">
         <p className="hint" aria-live="polite">
-          {comparable.length} confirmed{" "}
+          {comparable.length} calculated{" "}
           {comparable.length === 1 ? "total" : "totals"}
           {spread !== null
             ? ` · ${inr(spread)} between lowest and highest`
             : ""}
-          . Uncertain prices are listed separately.
+          . Missing terms can change the order. Review taxes, service charges and compulsory extras in the original.
         </p>
         <button className="quiet" onClick={download} disabled={!rows.length}>
           Export comparison
         </button>
       </div>
+      {budget && <p className="note">Budget checks use the stated prices only. Exclusions and unstated charges may add to the final bill.</p>}
       <table className="comparison">
         <caption className="sr-only">
-          Venue quotes for {headcount} {diet} guests. Confirmed totals first,
+          Venue quotes for {headcount} {diet} guests. Complete pricing first,
           then incomplete quotes.
         </caption>
         <thead>
@@ -230,6 +235,7 @@ export default function Board({
                     {norm?.blocker ?? "No reply yet"}
                   </span>
                 )}
+                {budget && norm?.total != null && <p className="budget-note">{norm.total > budget ? `${inr(norm.total-budget)} over budget${norm.blocker ? " before missing costs" : ""}` : norm.blocker ? "Budget fit unconfirmed" : `${inr(budget-norm.total)} within budget`}</p>}
                 {norm?.total != null && norm.blocker && (
                   <p className="note bite">{norm.blocker}</p>
                 )}

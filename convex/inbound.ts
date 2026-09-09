@@ -168,7 +168,7 @@ export const saveQuote = internalMutation({
     const vendor = await ctx.db.get(message.vendorId);
     if (vendor?.autoFollowup && !vendor.followupState && vendor.threadId
         && extracted.reply_kind === "quote" && gaps.length > 0
-        && !/^(manual:|qa-webhook:|fixture-)/.test(message.agentmailMessageId)) {
+        && !/^(manual:|upload:|qa-webhook:|fixture-)/.test(message.agentmailMessageId)) {
       await ctx.db.patch(vendor._id, {followupState:"queued"});
       await ctx.scheduler.runAfter(15000, internal.outbound.askAboutGaps, {vendorId:vendor._id, messageId:message._id, gaps});
     }

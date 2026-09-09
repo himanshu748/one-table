@@ -38,6 +38,9 @@ export default defineSchema({
   ...authTables,
   events: defineTable({
     userId: v.id("users"),
+    neighbourhood: v.optional(v.string()),
+    dateFlexible: v.optional(v.boolean()),
+    eventType: v.optional(v.string()),
     discoveryStatus: v.optional(v.string()),
     discoveryError: v.optional(v.string()),
     title: v.string(),
@@ -58,6 +61,8 @@ export default defineSchema({
     sourceUrl: v.union(v.string(), v.null()),
     // Firecrawl's read of the vendor's own published pricing, used later to
     // flag a quote that exceeds what they advertise publicly.
+    discoveryExcerpt: v.optional(v.string()),
+    shortlisted: v.optional(v.boolean()),
     publishedPricing: v.union(
       v.object({
         perHeadFrom: v.union(v.number(), v.null()),
@@ -101,6 +106,7 @@ export default defineSchema({
     subject: v.string(),
     body: v.string(),
     replyText: v.optional(v.string()),
+    attachmentName: v.optional(v.string()),
     attachmentIds: v.array(v.id("_storage")),
     receivedAt: v.number(),
     // Set when this outbound message was an automatic gap-filling follow-up,

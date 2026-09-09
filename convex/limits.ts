@@ -9,6 +9,7 @@ export const limits = new RateLimiter(components.rateLimiter, {
   enquiries: { kind: "fixed window", rate: 5, period: DAY },
   mailGlobal: { kind: "fixed window", rate: 100, period: DAY },
   recipient: { kind: "fixed window", rate: 3, period: DAY },
+  uploads: { kind: "fixed window", rate: 10, period: DAY },
   searches: { kind: "fixed window", rate: 5, period: DAY },
   searchGlobal: { kind: "fixed window", rate: 100, period: DAY },
   extraction: { kind: "fixed window", rate: 20, period: DAY },

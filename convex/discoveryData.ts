@@ -10,7 +10,7 @@ export const finish = internalMutation({
   args: {
     eventId: v.id("events"),
     vendors: v.array(
-      v.object({ name: v.string(), email: v.string(), sourceUrl: v.string() }),
+      v.object({ name: v.string(), email: v.string(), sourceUrl: v.string(), discoveryExcerpt: v.optional(v.string()) }),
     ),
     error: v.union(v.string(), v.null()),
   },

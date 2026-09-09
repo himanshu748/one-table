@@ -2,6 +2,7 @@
 import { v } from "convex/values";
 import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { discoveryQuery } from "./lib/brief";
 export const findVendors = internalAction({
   args: { eventId: v.id("events") },
   returns: v.null(),
@@ -19,7 +20,7 @@ export const findVendors = internalAction({
           Authorization: `Bearer ${process.env.FIRECRAWL_API_KEY}`,
         },
         body: JSON.stringify({
-          query: `${event.city} banquet venue official contact email`,
+          query: discoveryQuery(event),
           limit: 5,
           scrapeOptions: { formats: ["markdown"], onlyMainContent: true },
         }),
@@ -55,6 +56,7 @@ export const findVendors = internalAction({
           name: String(page.title ?? url.hostname).slice(0, 120),
           email: emails[0].toLowerCase(),
           sourceUrl: url.href,
+          discoveryExcerpt: String(page.description || page.markdown).replace(/[#*\[\]]/g, "").slice(0,500),
         });
       }
       await ctx.runMutation(internal.discoveryData.finish, {

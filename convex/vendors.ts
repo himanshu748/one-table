@@ -1,3 +1,5 @@
+import type { MutationCtx } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
 import { v, ConvexError } from "convex/values";
 import { mutation, internalMutation, internalQuery } from "./_generated/server";
 import { ownedEvent } from "./lib/access";
@@ -69,7 +71,7 @@ export const forOutbound = internalQuery({
       .take(20);
     const last = messages.find(
       (m) =>
-        m.direction === "in" && !m.agentmailMessageId.startsWith("manual:"),
+        m.direction === "in" && ! /^(manual:|upload:)/.test(m.agentmailMessageId),
     );
     return {
       email: vendor.email,
@@ -129,28 +131,7 @@ export const recordOutbound = internalMutation({
 export const approveRfq = mutation({
   args: { vendorId: v.id("vendors"), autoFollowup: v.optional(v.boolean()) },
   returns: v.null(),
-  handler: async (ctx, { vendorId, autoFollowup }) => {
-    const vendor = await ctx.db.get(vendorId);
-    if (!vendor) throw new ConvexError("Venue not found.");
-    const event = await ownedEvent(ctx, vendor.eventId);
-    if (!(await canSend(ctx, event.userId, vendor.email)))
-      throw new ConvexError(
-        "Verify your email to send enquiries. Live sending must also be enabled for this pilot.",
-      );
-    if (vendor.outboundState || vendor.lastOutboundAt)
-      throw new ConvexError(
-        "This enquiry is already queued or sent. Check its delivery state.",
-      );
-    const venues = await ctx.db.query("vendors").withIndex("by_event", q=>q.eq("eventId",event._id)).take(20);
-    if (venues.filter(v=>v.outboundState || v.lastOutboundAt).length >= 3)
-      throw new ConvexError("You can contact three venues per event during the public trial.");
-    await limits.limit(ctx, "enquiries", {key:event.userId, throws:true});
-    await limits.limit(ctx, "recipient", {key:vendor.email, throws:true});
-    await limits.limit(ctx, "mailGlobal", {throws:true});
-    await ctx.db.patch(vendorId, { outboundState: "queued", autoFollowup: autoFollowup === true });
-    await ctx.scheduler.runAfter(0, internal.outbound.sendRfq, { vendorId });
-    return null;
-  },
+  handler: async (ctx, {vendorId,autoFollowup}) => approve(ctx,vendorId,autoFollowup),
 });
 export const claimSend = internalMutation({
   args: { vendorId: v.id("vendors") },
@@ -211,4 +192,45 @@ export const followupFailed = internalMutation({
     await ctx.db.patch(vendorId,{followupState:"uncertain",followupError:"Follow-up delivery could not be confirmed. It will not be retried automatically."});
     return null;
   },
+});
+
+async function approve(ctx: MutationCtx, vendorId: Id<"vendors">, autoFollowup?: boolean) {
+    const vendor = await ctx.db.get(vendorId);
+    if (!vendor) throw new ConvexError("Venue not found.");
+    const event = await ownedEvent(ctx, vendor.eventId);
+    if (!(await canSend(ctx, event.userId, vendor.email)))
+      throw new ConvexError(
+        "Verify your email to send enquiries. Live sending must also be enabled for this pilot.",
+      );
+    if (vendor.outboundState || vendor.lastOutboundAt)
+      throw new ConvexError(
+        "This enquiry is already queued or sent. Check its delivery state.",
+      );
+    const venues = await ctx.db.query("vendors").withIndex("by_event", q=>q.eq("eventId",event._id)).take(20);
+    if (venues.filter(v=>v.outboundState || v.lastOutboundAt).length >= 3)
+      throw new ConvexError("You can contact three venues per event during the public trial.");
+    await limits.limit(ctx, "enquiries", {key:event.userId, throws:true});
+    await limits.limit(ctx, "recipient", {key:vendor.email, throws:true});
+    await limits.limit(ctx, "mailGlobal", {throws:true});
+    await ctx.db.patch(vendorId, { outboundState: "queued", autoFollowup: autoFollowup === true });
+    await ctx.scheduler.runAfter(0, internal.outbound.sendRfq, { vendorId });
+    return null;
+}
+
+export const shortlist = mutation({
+  args:{vendorId:v.id("vendors"),selected:v.boolean()},returns:v.null(),
+  handler:async(ctx,{vendorId,selected})=>{
+    const venue=await ctx.db.get(vendorId); if(!venue) throw new ConvexError("Venue not found.");
+    await ownedEvent(ctx,venue.eventId);
+    await ctx.db.patch(vendorId,{shortlisted:selected});return null;
+  }
+});
+export const approveBatch = mutation({
+  args:{eventId:v.id("events"),vendorIds:v.array(v.id("vendors")),autoFollowup:v.boolean()},returns:v.null(),
+  handler:async(ctx,{eventId,vendorIds,autoFollowup})=>{
+    await ownedEvent(ctx,eventId);
+    if(vendorIds.length<1 || vendorIds.length>3 || new Set(vendorIds).size!==vendorIds.length) throw new ConvexError("Select one to three different venues.");
+    for(const id of vendorIds) { const venue=await ctx.db.get(id); if(!venue || venue.eventId!==eventId) throw new ConvexError("Venue is not in this event."); await approve(ctx,id,autoFollowup); }
+    return null;
+  }
 });

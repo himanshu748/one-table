@@ -23,6 +23,13 @@ export const fromMessage = internalAction({
       if (!ctxData) return null;
 
       await ctx.runMutation(internal.limits.reserveExtraction, {messageId:ctxData.messageId});
+      const content: Array<unknown> = [{type:"text",text:`Buyer asked for a quote for ${ctxData.headcount} guests on ${ctxData.eventDate}.\n\nSubject: ${ctxData.subject}\n\n${ctxData.body}`}];
+      for (const id of ctxData.attachmentIds.slice(0,1)) {
+        const blob = await ctx.storage.get(id);
+        if (!blob || blob.size > 4*1024*1024) throw new Error("Attachment unavailable");
+        const data = `data:${blob.type};base64,${Buffer.from(await blob.arrayBuffer()).toString("base64")}`;
+        content.push(blob.type === "application/pdf" ? {type:"file",file:{filename:"quote.pdf",file_data:data}} : {type:"image_url",image_url:{url:data}});
+      }
       const r = await fetch(
         process.env.OPENAI_API_KEY
           ? "https://api.openai.com/v1/chat/completions"
@@ -43,7 +50,7 @@ export const fromMessage = internalAction({
               { role: "system", content: EXTRACT_SYSTEM },
               {
                 role: "user",
-                content: `Buyer asked for a quote for ${ctxData.headcount} guests on ${ctxData.eventDate}.\n\nSubject: ${ctxData.subject}\n\n${ctxData.body}`,
+                content,
               },
             ],
             response_format: {

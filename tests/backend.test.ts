@@ -275,3 +275,63 @@ describe("public trial sending", () => {
     await expect(t.mutation(internal.limits.reserveAuthEmail,{email:"test@example.com"})).rejects.toThrow("Too many");
   });
 });
+
+describe("brief, shortlist and attachments",()=>{
+ it("persists the full brief and refuses invalid budgets",async()=>{
+  const {owner}=await setup();
+  const args={title:"Birthday",city:"Mumbai",eventDate:"2027-03-12",headcount:80,dietary:"both" as const,neighbourhood:"Bandra",eventType:"Birthday",dateFlexible:true,needs:["Parking"],budgetHint:150000};
+  const id=await owner.mutation(api.events.create,args);
+  const board=await owner.query(api.board.forEvent,{eventId:id});
+  expect(board.event).toMatchObject(args);
+  await expect(owner.mutation(api.events.create,{...args,budgetHint:-1})).rejects.toThrow("budget");
+ });
+ it("persists shortlist selection and refuses another owner",async()=>{
+  const {t,owner,vendorId,eventId}=await setup();
+  await owner.mutation(api.vendors.shortlist,{vendorId,selected:true});
+  expect((await owner.query(api.board.forEvent,{eventId})).rows[0].shortlisted).toBe(true);
+  await expect(t.mutation(api.vendors.shortlist,{vendorId,selected:false})).rejects.toThrow();
+  await expect(t.mutation(internal.attachmentData.reserve,{vendorId})).rejects.toThrow();
+ });
+ it("does not expose original attachment links to another session",async()=>{
+  const {t,owner,vendorId,eventId}=await setup();
+  const id=await message(t,eventId,vendorId,600);
+  expect(await owner.query(api.attachmentData.forMessage,{messageId:id})).toEqual([]);
+  await expect(t.query(api.attachmentData.forMessage,{messageId:id})).rejects.toThrow();
+ });
+ it("rejects duplicate batch recipients without queueing anything",async()=>{
+  const {owner,vendorId,eventId}=await setup();
+  await expect(owner.mutation(api.vendors.approveBatch,{eventId,vendorIds:[vendorId,vendorId],autoFollowup:false})).rejects.toThrow("different");
+  expect((await owner.query(api.board.forEvent,{eventId})).rows[0].deliveryState).toBe(null);
+ });
+ it("never schedules a clarification for an uploaded document",async()=>{
+  const {t,eventId,vendorId}=await setup();
+  await t.run(ctx=>ctx.db.patch(vendorId,{autoFollowup:true,threadId:"real-thread"}));
+  const id=await message(t,eventId,vendorId,700);
+  await t.run(ctx=>ctx.db.patch(id,{agentmailMessageId:"upload:controlled"}));
+  await t.mutation(internal.inbound.saveQuote,{messageId:id,extracted:{...extracted,taxes_included:null},pricingFlag:null});
+  const venue=await t.run(ctx=>ctx.db.get(vendorId));expect(venue?.followupState).toBeUndefined();
+ });
+});
+
+it("queues a selected batch atomically and rolls back when one venue is already sent",async()=>{
+ process.env.PUBLIC_SENDING_ENABLED="true";
+ try{
+  const {t,owner,eventId,vendorId}=await setup();
+  await t.run(async ctx=>{const event=await ctx.db.get(eventId);await ctx.db.patch(event!.userId,{email:"buyer@example.com",emailVerificationTime:Date.now()});});
+  const second=await owner.mutation(api.vendors.add,{eventId,name:"Second",email:"second@example.com"});
+  await owner.mutation(api.vendors.approveBatch,{eventId,vendorIds:[vendorId,second],autoFollowup:false});
+  expect((await owner.query(api.board.forEvent,{eventId})).rows.every(r=>r.deliveryState==="queued")).toBe(true);
+  const third=await owner.mutation(api.vendors.add,{eventId,name:"Third",email:"third@example.com"});
+  await expect(owner.mutation(api.vendors.approveBatch,{eventId,vendorIds:[third,second],autoFollowup:false})).rejects.toThrow("already queued");
+  expect((await t.run(ctx=>ctx.db.get(third)))?.outboundState).toBeUndefined();
+ }finally{delete process.env.PUBLIC_SENDING_ENABLED;}
+});
+it("keeps previous quote terms available only to their owner",async()=>{
+ const {t,owner,eventId,vendorId}=await setup();
+ const first=await message(t,eventId,vendorId,100);
+ await t.mutation(internal.inbound.saveQuote,{messageId:first,extracted,pricingFlag:null});
+ const second=await message(t,eventId,vendorId,200);
+ await t.mutation(internal.inbound.saveQuote,{messageId:second,extracted:{...extracted,per_head_veg:1200},pricingFlag:null});
+ const history=await owner.query(api.messages.quoteHistory,{vendorId});expect(history).toHaveLength(2);expect(history.filter(q=>q.supersededAt===null)).toHaveLength(1);
+ await expect(t.query(api.messages.quoteHistory,{vendorId})).rejects.toThrow();
+});

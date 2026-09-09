@@ -7,12 +7,13 @@ import {
 } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { ownedEvent } from "./lib/access";
-import { messageDoc } from "./validators";
+import { messageDoc, quoteDoc } from "./validators";
 export const forExtraction = internalQuery({
   args: { agentmailMessageId: v.string() },
   returns: v.union(
     v.null(),
     v.object({
+      attachmentIds: v.array(v.id("_storage")),
       messageId: v.id("messages"),
       vendorId: v.id("vendors"),
       subject: v.string(),
@@ -39,6 +40,7 @@ export const forExtraction = internalQuery({
     const vendor = await ctx.db.get(message.vendorId);
     if (!event || !vendor) return null;
     return {
+      attachmentIds: message.attachmentIds,
       messageId: message._id,
       vendorId: vendor._id,
       subject: message.subject,
@@ -156,4 +158,13 @@ export const retry = mutation({
     });
     return null;
   },
+});
+
+export const quoteHistory = query({
+  args:{vendorId:v.id("vendors")},returns:v.array(quoteDoc),
+  handler:async(ctx,{vendorId})=>{
+    const venue=await ctx.db.get(vendorId);if(!venue)throw new ConvexError("Venue not found.");
+    await ownedEvent(ctx,venue.eventId);
+    return await ctx.db.query("quotes").withIndex("by_vendor",q=>q.eq("vendorId",vendorId)).order("desc").take(20);
+  }
 });

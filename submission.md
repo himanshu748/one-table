@@ -9,17 +9,19 @@ One Table
 Find venues, request quotes and compare the real cost for your guest list.
 
 ## Description
-Planning a family event means comparing emails that price the same gathering in different ways. One venue charges per plate, another offers a package, and another adds hall rent or a food minimum. Taxes and minimum guest counts can change which option costs less.
+Planning a family event means comparing emails that price the same gathering in different ways: per plate, packages, hall rent and minimum spends. Taxes and guest minimums can change which option costs less.
 
-One Table brings those replies into one comparison. Enter your city, event date and guest count. Firecrawl finds venue contact pages with source links. Choose your shortlist, review the enquiry and approve sending it through AgentMail. When a venue replies, OpenAI extracts its quoted terms and Convex updates the board. You can opt into one clarification about missing taxes, minimum covers or confirmation timing.
+One Table puts those quotes into one comparison. A two-step brief asks for your city, neighbourhood, date, guest count and must-haves. Your optional budget stays private. Firecrawl finds venue contact pages with source links; you review the leads, save a shortlist and approve up to three enquiries through AgentMail. Discovery never sends mail by itself.
 
-The arithmetic runs in code. Unknown terms remain unknown. Every quote keeps its original messages, including source links between a price and a later clarification. Change the guest count to compare per-person prices, packages and minimums, then export the shortlist.
+When a venue replies, OpenAI extracts its quoted terms and Convex updates the board. You can also paste a reply or upload a PDF, PNG or JPEG quote. Original documents and messages stay available beside quote revision history. An optional, once-per-venue clarification asks about missing taxes, minimum covers or confirmation timing.
 
-Convex provides email-code authentication, private event records, queries, mutations, scheduled actions, live updates and static hosting. Its rate-limiter component enforces the public trial allowances. Verified users can contact three venues per event and send five enquiries per day. Venue replies take real time; the separate example comparison uses fictional data.
+The workspace separates your shortlist, comparison and replies. Change the guest count or menu to compare calculated totals against your budget. Unknown terms stay visible; review original quotes before booking. CSV export carries pricing gaps with the figures.
 
-Claude built the initial quote-extraction experiment and comparison interface. Codex completed the backend and provider integrations, fixed arithmetic and reply-merging edge cases, added account verification and sending limits, and tested the public workflow.
+Convex provides email-code authentication, private records, queries, mutations, scheduled actions, live updates, document storage and static hosting. Its rate-limiter component enforces trial allowances. Verified users can contact three venues per event and send five enquiries per day. Venue replies take real time; a separate fictional example lets visitors explore immediately.
 
-We verified 42 automated tests and a controlled email loop between two owned inboxes. A fictional INR 1,250 quote plus 18% GST produced the expected INR 177,000 total for 120 guests. No real venues were contacted in that test. Firecrawl returned real source pages separately. Published-pricing extraction and attachment-only quotes remain unfinished, and the full twelve-fixture extraction benchmark is still incomplete because of provider rate limits.
+Claude built the initial extraction experiment and comparison interface. Codex completed provider integrations, account verification, sending limits, document uploads, revision history and the guided workspace.
+
+Verification includes 53 automated tests and a controlled email loop between two owned inboxes: INR 1,250 plus 18% GST produced INR 177,000 for 120 guests. Separate fictional PDF and PNG uploads each produced INR 141,600 for 80 guests. Firecrawl returned real source pages; no real venues were contacted in these tests. Published-pricing extraction and automatic email attachment ingestion remain unfinished. Provider rate limits prevented completion of the twelve-fixture extraction benchmark. The linked 86-second walkthrough shows the earlier workspace and controlled email evidence.
 
 ## Links
 - X launch thread: https://x.com/jhahimanshu653/status/2097279039463694526
@@ -38,4 +40,7 @@ We verified 42 automated tests and a controlled email loop between two owned inb
 Open the app without an invitation. Choose See how it works for the fictional example, or My events to verify your email and use a private workspace. For real sending, select contacts you intend to approach and review the enquiry. Please do not send fictional requests to real venues. You can paste a sample quote to try extraction without emailing anyone.
 
 ## Remaining platform checks
-Confirm Luma registration and entrant eligibility. Public repository and hosted 86-second captioned walkthrough are ready. Vibe Apps submission is complete. The sponsor-tagged launch thread is published: https://x.com/jhahimanshu653/status/2097279039463694526
+Confirm Luma registration and entrant eligibility. Public repository and hosted 86-second captioned walkthrough are ready. The public Vibe Apps listing is saved; dedicated All Gas event inclusion remains unverified. The sponsor-tagged launch thread is published: https://x.com/jhahimanshu653/status/2097279039463694526
+
+
+September 9 update: the existing Vibe Apps description was saved and verified with the guided brief, document uploads, 53 tests, controlled provider evidence and current limitations. App, repository, Drive video and all six tags remain present. Browser QA verified both brief steps and separate event views; fixed Continue accidentally submitting before preferences. The viewport override did not change the actual 792px browser width, so this run does not establish a fresh phone-width pass.

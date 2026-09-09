@@ -89,3 +89,15 @@ Published a two-post thread with the native 86-second walkthrough attached, nami
 
 - Launch: https://x.com/jhahimanshu653/status/2097279039463694526
 - RentPilot context: https://x.com/jhahimanshu653/status/2097279042210914378
+
+
+## September 9 — Guided workspace and quote documents
+
+Added a two-step brief, private budget, neighbourhood and needs-aware Firecrawl discovery, saved shortlists, reviewed batch enquiries, separate shortlist/comparison/replies views, manual PDF/PNG/JPEG upload, original document links and quote revision history. Convex Auth email-code sign-in was verified again through an owned account. No real venues were emailed.
+
+Live controlled PDF and PNG uploads each extracted INR 1,500 per guest plus 18% GST and calculated INR 141,600 for 80 guests. An initial image extraction misclassified an included hall as a separate rental; the prompt was corrected and the image retest passed. The latest fixture run completed only five of twelve cases before persistent gateway 429: 64/65 fields, 35/35 unstated checks and 5/5 totals. This partial fixture run preceded the document-classification correction and is not a full final-prompt pass.
+
+53 automated tests and the build pass. Firecrawl found a real source page with the extended brief. Automatic email attachment ingestion, alternate-sender routing, published pricing, independent human testing and Luma registration remain separate gates. Official All Gas rules list auth among Convex depth criteria; their Auth v2 resource does not mandate a migration. Multiple app entries are explicitly allowed. The public listing exists; the dedicated event association has not yet been verified.
+
+
+September 9 update: the existing Vibe Apps description was saved and verified with the guided brief, document uploads, 53 tests, controlled provider evidence and current limitations. App, repository, Drive video and all six tags remain present. Browser QA verified both brief steps and separate event views; fixed Continue accidentally submitting before preferences. The viewport override did not change the actual 792px browser width, so this run does not establish a fresh phone-width pass.

@@ -9,6 +9,8 @@
  */
 
 import type * as account from "../account.js";
+import type * as attachmentData from "../attachmentData.js";
+import type * as attachments from "../attachments.js";
 import type * as auth from "../auth.js";
 import type * as board from "../board.js";
 import type * as crons from "../crons.js";
@@ -19,6 +21,8 @@ import type * as extract from "../extract.js";
 import type * as http from "../http.js";
 import type * as inbound from "../inbound.js";
 import type * as lib_access from "../lib/access.js";
+import type * as lib_attachments from "../lib/attachments.js";
+import type * as lib_brief from "../lib/brief.js";
 import type * as lib_extractionContract from "../lib/extractionContract.js";
 import type * as lib_mergeTerms from "../lib/mergeTerms.js";
 import type * as lib_normalise from "../lib/normalise.js";
@@ -40,6 +44,8 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   account: typeof account;
+  attachmentData: typeof attachmentData;
+  attachments: typeof attachments;
   auth: typeof auth;
   board: typeof board;
   crons: typeof crons;
@@ -50,6 +56,8 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   inbound: typeof inbound;
   "lib/access": typeof lib_access;
+  "lib/attachments": typeof lib_attachments;
+  "lib/brief": typeof lib_brief;
   "lib/extractionContract": typeof lib_extractionContract;
   "lib/mergeTerms": typeof lib_mergeTerms;
   "lib/normalise": typeof lib_normalise;

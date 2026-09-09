@@ -11,6 +11,12 @@ import { limits } from "./limits";
 import { ownedEvent } from "./lib/access";
 export const create = mutation({
   args: {
+    neighbourhood: v.optional(v.string()),
+    dateFlexible: v.optional(v.boolean()),
+    eventType: v.optional(v.string()),
+    budgetHint: v.optional(v.number()),
+    needs: v.optional(v.array(v.string())),
+    autoDiscover: v.optional(v.boolean()),
     title: v.string(),
     city: v.string(),
     eventDate: v.string(),
@@ -35,6 +41,7 @@ export const create = mutation({
       throw new ConvexError(
         "Enter an event, city, valid date and 1 to 2,000 guests.",
       );
+    if ((args.neighbourhood?.length ?? 0) > 80 || (args.eventType?.length ?? 0) > 40 || (args.needs?.length ?? 0) > 8 || args.needs?.some(n=>!n.trim() || n.length>80) || (args.budgetHint !== undefined && (!Number.isFinite(args.budgetHint) || args.budgetHint <= 0 || args.budgetHint > 100000000))) throw new ConvexError("Check your area, requirements and total budget (INR).");
     const recent = await ctx.db
       .query("events")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -44,15 +51,25 @@ export const create = mutation({
       throw new ConvexError(
         "You can create ten events per day. Return to an existing event.",
       );
-    return await ctx.db.insert("events", {
-      ...args,
+    const {autoDiscover, ...brief} = args;
+    const id = await ctx.db.insert("events", {
+      ...brief,
       title: args.title.trim(),
       city: args.city.trim(),
       userId,
-      needs: [],
-      budgetHint: null,
+      needs: args.needs ?? [],
+      budgetHint: args.budgetHint ?? null,
       agentInboxId: process.env.AGENTMAIL_INBOX_ID ?? null,
     });
+    if (autoDiscover && process.env.FIRECRAWL_API_KEY) {
+      const quota = await limits.limit(ctx,"searches",{key:userId});
+      const global = quota.ok && await limits.limit(ctx,"searchGlobal");
+      if (global && global.ok) {
+        await ctx.db.patch(id,{discoveryStatus:"searching"});
+        await ctx.scheduler.runAfter(0,internal.discover.findVendors,{eventId:id});
+      } else await ctx.db.patch(id,{discoveryStatus:"failed",discoveryError:"Event saved. Search allowance reached; try searching later."});
+    }
+    return id;
   },
 });
 export const list = query({
