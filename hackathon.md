@@ -48,4 +48,4 @@ Independent human usability feedback and Luma registration have not been verifie
 
 ## Build history
 
-The [archived build log](docs/archive/build-log-2026-09-08.md) preserves prior test counts, earlier limitations, controlled provider evidence and submission receipts. Those dated notes do not override the current status above. The original promotional animation is archived under `videos/one-table-launch`; the linked browser walkthrough is the submitted demo.
+The [archived build log](docs/archive/build-log-2026-09-08.md) preserves prior test counts, earlier limitations, controlled provider evidence and submission receipts. Those dated notes do not override the current status above. Video production sources and social drafts stay local. The linked browser walkthrough is the submitted demo.

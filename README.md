@@ -93,8 +93,8 @@ The registered `@convex-dev/rate-limiter` component enforces transactional limit
 
 ## Repository contents
 
-Keep source, schema, generated Convex API bindings, lockfiles, synthetic fixtures, tests and dated evaluation results. Public evidence belongs in `docs/evidence`. Historical drafts are in `docs/archive`; they are not current product instructions.
+Keep source, schema, generated Convex API bindings, lockfiles, synthetic fixtures, tests and dated evaluation results. Public evidence belongs in `docs/evidence`. Dated build evidence is in `docs/archive`. Social drafts and video production sources stay local and are ignored by Git.
 
-Do not commit provider keys, sign-in codes, browser sessions, customer documents, private mail exports, raw logs or rendered video binaries. `.gitignore` excludes environment files, caches and local output; `.env.example` contains configuration names only. Third-party code retains its own license notices, including GSAP in the archived animation.
+Do not commit provider keys, sign-in codes, browser sessions, customer documents, private mail exports, raw logs or rendered video binaries. `.gitignore` excludes environment files, caches and local output; `.env.example` contains configuration names only. Third-party dependencies retain their own license notices.
 
 `npm run format` formats application, backend, test and script source. Operator-only `scripts/check-webhook.mjs` requires `WEBHOOK_ORIGIN`, `QA_THREAD_ID` and `QA_SENDER` for a thread you own; it writes synthetic messages and is not part of the normal test suite.

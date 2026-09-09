@@ -19,3 +19,9 @@ videos/**/.hyperframes/
 videos/**/node_modules/
 
 videos/**/.thumbnails/
+
+# Local-only social copy and video production sources
+/videos/
+/docs/archive/social-draft.md
+/social-draft.md
+/local-marketing/
