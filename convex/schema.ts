@@ -116,6 +116,11 @@ export default defineSchema({
     extractionError: v.optional(v.string()),
   })
     .index("by_vendor", ["vendorId"])
+    .index("by_vendor_direction_received", [
+      "vendorId",
+      "direction",
+      "receivedAt",
+    ])
     .index("by_event", ["eventId"])
     .index("by_agentmail_id", ["agentmailMessageId"]),
 

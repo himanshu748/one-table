@@ -1,6 +1,6 @@
 # One Table: Convex All Gas build record
 
-Updated September 9, 2026.
+Updated September 12, 2026.
 
 - [Live app](https://wooden-dogfish-387.convex.site/)
 - [Public repository](https://github.com/himanshu748/one-table)
@@ -10,7 +10,7 @@ Updated September 9, 2026.
 
 ## What people can do
 
-Plan a gathering, discover venue contacts, approve enquiries and compare returned quotes at a common guest count. The brief captures city, neighbourhood, date flexibility, menu and must-haves. An optional budget stays private. Buyers can upload PDF, PNG or JPEG quotes, review original documents and see earlier quote versions. A separate fictional example is available without sign-in.
+Plan a gathering, discover venue contacts, approve enquiries and compare returned quotes at a common guest count. The brief captures city, neighbourhood, date flexibility, menu and must-haves. An optional budget stays private. Buyers can upload PDF, PNG or JPEG quotes, compare itemised inclusions and exclusions, review original documents and see earlier quote versions. The comparison records quote dates and warns when a newer reply is queued or failed. A separate fictional example is available without sign-in.
 
 ## Stack and real work
 
@@ -26,7 +26,7 @@ Claude created the original extraction experiment and comparison interface. Code
 
 ## Verified evidence
 
-- 53 automated tests and the frontend/backend TypeScript build pass. Tests cover arithmetic, ownership, stale and duplicate replies, upload boundaries and batch-send atomicity.
+- 64 automated tests and the frontend/backend TypeScript build pass. Tests cover arithmetic, ownership, stale and duplicate replies, upload boundaries and batch-send atomicity.
 - Fresh 390px browser checks passed for the landing, event brief, comparison and upload views. [Public screenshots](docs/evidence/README.md#current-mobile-screens) show the current UI.
 - Email-code sign-in was exercised against an owned inbox; verified accounts recover their own events across sessions.
 - A real AgentMail loop between two owned inboxes delivered an approved enquiry, fictional quote, opted-in clarification and tax answer. The live total was INR 177,000 for 120 guests at INR 1,250 plus 18% GST.
@@ -45,6 +45,17 @@ Automatic ingestion of email attachments, alternate sales-sender routing and pub
 The earlier five-case extraction run scored 64/65 fields, 35/35 unstated checks and 5/5 totals before gateway rate limits stopped it. This result predates the document-classification prompt refinement and is retained as [dated partial evidence](experiments/extraction/results-openai-2026-09-09-partial.json). A fresh run using the current prompt completed five of twelve cases: 65/65 fields, 35/35 unstated checks and 5/5 totals. The sixth case hit persistent gateway 429 after retries. The [latest result](experiments/extraction/results-openai.json) records scores, errors, prompt hash and source revision. This is a partial pass, not a completed twelve-case benchmark.
 
 Independent human usability feedback and Luma registration have not been verified. The public app is usable without an invitation; sign-in is required for private events.
+
+## September 12: quote decisions with the terms intact
+
+- The comparison exposes included items, extras, material unknowns and quote dates beside the amount. Empty exclusions never mean that all costs are covered.
+- Hall quotes with unstated minimum covers or food spend stay incomplete; an explicit zero remains distinct from a missing term.
+- Newer queued or failed replies remain visible without replacing the last extracted quote. The query uses an indexed, bounded latest-message read.
+- Quote history now shows changed inclusions, exclusions and unstated terms, with buttons that open their original messages.
+- Exact guest-count entry and menu changes recompute the comparison. CSV export preserves quoted terms, source dates, tax qualifications and uncertainty; formula-like cell values are escaped.
+- Focused regressions cover both hall minimums, text-only revisions, stale/failed/newer replies and tax labels in capacity-blocked exports. Desktop and actual 390px browser checks used the labelled fictional example; backend ownership and lifecycle checks are automated. No new third-party enquiry was sent.
+
+The current walkthrough predates this update; it still shows the supported core workflow. Independent human feedback and a refreshed walkthrough of these additions remain separate from the checks above.
 
 ## Build history
 

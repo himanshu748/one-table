@@ -911,3 +911,127 @@ footer {
     gap: 12px;
   }
 }
+
+/* Quoted terms stay beside the amount they qualify. */
+.guest-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.guest-entry input {
+  width: 90px;
+  font-variant-numeric: tabular-nums;
+}
+.guest-entry > span:last-child {
+  color: #615b52;
+  font-size: 13px;
+}
+.decision-overview {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  padding: 24px 0 18px;
+  border-bottom: 1px solid var(--hair);
+}
+.decision-overview h2 {
+  margin: 0 0 6px;
+  font:
+    500 24px/1.25 Georgia,
+    serif;
+  letter-spacing: -0.02em;
+}
+.decision-overview p {
+  margin: 0;
+  color: #575b50;
+  font-size: 14px;
+}
+.decision-overview > span {
+  color: #575b50;
+  font-size: 13px;
+  text-align: right;
+}
+.quote-date {
+  color: #605b53;
+  font-size: 12px;
+  margin: 10px 0;
+}
+.quote-terms {
+  margin-top: 14px;
+  font-size: 13px;
+}
+.quote-terms summary {
+  cursor: pointer;
+  color: var(--accent);
+  padding: 8px 0;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.quote-terms ul,
+.quote-exclusions ul {
+  padding-left: 18px;
+  margin: 6px 0 12px;
+}
+.quote-terms li,
+.quote-exclusions li {
+  margin: 3px 0;
+}
+.quote-terms p {
+  margin: 8px 0;
+}
+.quote-exclusions {
+  color: #753e1d;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+.quote-exclusions strong {
+  font-size: 12px;
+}
+.terms-confirmed {
+  color: #315447;
+  font-size: 13px;
+  margin: 0;
+  max-width: 32ch;
+}
+.reply-warning {
+  padding: 10px 12px;
+  background: #f6ebdb;
+  color: #754118;
+  font-size: 13px;
+  border-radius: 8px;
+}
+.quote-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 20px;
+}
+.quote-sources .quiet {
+  font-size: 13px;
+}
+.quote-terms summary:focus-visible,
+.guest-entry input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .decision-overview {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .decision-overview > span {
+    text-align: left;
+  }
+  .decision-overview h2 {
+    font-size: 22px;
+  }
+  .guest-entry {
+    justify-content: flex-start;
+  }
+  .quote-terms summary {
+    min-height: 44px;
+  }
+}

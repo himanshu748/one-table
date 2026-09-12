@@ -164,9 +164,12 @@ export function normalise(
   }
 
   const uncertainty =
-    q.pricing_model === "per_head" && q.min_guarantee_covers === null
+    (q.pricing_model === "per_head" || q.pricing_model === "hall_plus_fnb") &&
+    q.min_guarantee_covers === null
       ? "minimum cover count unstated"
-      : null;
+      : q.pricing_model === "hall_plus_fnb" && q.fnb_minimum === null
+        ? "food and beverage minimum unstated"
+        : null;
   if (q.taxes_included === true) {
     return { total: base, isPreTax: false, blocker: uncertainty, notes };
   }
@@ -206,7 +209,10 @@ export function gapsWorthAsking(
     gaps.push("tax_percent");
   }
   if (q.lead_time_days === null) gaps.push("lead_time_days");
-  if (q.pricing_model === "per_head" && q.min_guarantee_covers === null) {
+  if (
+    (q.pricing_model === "per_head" || q.pricing_model === "hall_plus_fnb") &&
+    q.min_guarantee_covers === null
+  ) {
     gaps.push("min_guarantee_covers");
   }
   return gaps.filter((g) => (MATERIAL as readonly string[]).includes(g));

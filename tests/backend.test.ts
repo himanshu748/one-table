@@ -157,6 +157,36 @@ describe("private workspace and quote lifecycle", () => {
       "declined",
     );
   });
+  it("warns about an unread revision without replacing the last usable quote", async () => {
+    const { t, owner, eventId, vendorId } = await setup();
+    const first = await message(t, eventId, vendorId, 100);
+    await t.mutation(internal.inbound.saveQuote, {
+      messageId: first,
+      extracted,
+      pricingFlag: null,
+    });
+    const newer = await message(t, eventId, vendorId, 200);
+    let board = await owner.query(api.board.forEvent, { eventId });
+    expect(board.rows[0].quoteReceivedAt).toBe(100);
+    expect(board.rows[0].newerReply).toBe("queued");
+    expect(board.rows[0].norm?.total).toBe(120000);
+    await t.run((ctx) => ctx.db.patch(newer, { extractionStatus: "failed" }));
+    board = await owner.query(api.board.forEvent, { eventId });
+    expect(board.rows[0].newerReply).toBe("failed");
+    await t.mutation(internal.inbound.saveQuote, {
+      messageId: newer,
+      extracted: { ...extracted, per_head_veg: 1500 },
+      pricingFlag: null,
+    });
+    board = await owner.query(api.board.forEvent, { eventId });
+    expect(board.rows[0].newerReply).toBeNull();
+    expect(board.rows[0].quoteReceivedAt).toBe(200);
+    expect(board.rows[0].norm?.total).toBe(180000);
+    await message(t, eventId, vendorId, 50);
+    expect(
+      (await owner.query(api.board.forEvent, { eventId })).rows[0].newerReply,
+    ).toBeNull();
+  });
 });
 
 describe("clarification consent and quote continuity", () => {

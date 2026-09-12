@@ -1,25 +1,22 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { normalise, quoteTier } from "../convex/lib/normalise";
 import {
-  normalise,
-  gapsWorthAsking,
-  quoteTier,
-  type ExtractedQuote,
-} from "../convex/lib/normalise";
+  decisionUnknowns,
+  toCsv,
+  taxBasis,
+  type DecisionQuote,
+} from "./quoteDetails";
 export type BoardRow = {
   id: string;
   name: string;
-  quote: (ExtractedQuote & { lead_time_days: number | null }) | null;
+  quote: DecisionQuote | null;
   sourceUrl?: string | null;
   status?: string;
   pricingFlag?: string | null;
+  quoteReceivedAt?: number | null;
+  newerReply?: "queued" | "failed" | null;
 };
 const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
-const labels: Record<string, string> = {
-  taxes_included: "Tax inclusion",
-  tax_percent: "Tax rate",
-  lead_time_days: "Booking lead time",
-  min_guarantee_covers: "Minimum covers",
-};
 export default function Board({
   rows,
   initialHeadcount,
@@ -42,11 +39,15 @@ export default function Board({
   const scored = useMemo(
     () =>
       rows
-        .map((row) => ({
-          row,
-          norm: row.quote ? normalise(row.quote, headcount, diet) : null,
-          gaps: row.quote ? gapsWorthAsking(row.quote) : [],
-        }))
+        .map((row) => {
+          const norm = row.quote ? normalise(row.quote, headcount, diet) : null;
+          return {
+            row,
+            norm,
+            gaps:
+              row.quote && norm ? decisionUnknowns(row.quote, norm, diet) : [],
+          };
+        })
         .sort(
           (a, b) =>
             quoteTier(a.norm) - quoteTier(b.norm) ||
@@ -86,34 +87,38 @@ export default function Board({
       : null;
   function download() {
     const values = [
-      ["Venue", "Guests", "Menu", "Total INR", "Uncertainty"],
-      ...scored.map(({ row, norm }) => [
+      [
+        "Venue",
+        "Guests",
+        "Menu",
+        "Stated total INR",
+        "Price status",
+        "Tax basis",
+        "Included",
+        "Extra or excluded",
+        "Still to confirm",
+        "Source website",
+        "Quote received",
+        "Newer reply",
+      ],
+      ...scored.map(({ row, norm, gaps }) => [
         row.name,
         String(headcount),
         diet,
         String(norm?.total ?? ""),
-        [
-          norm?.blocker,
-          norm?.isPreTax ? "Before tax" : "",
-          ...(row.quote ? gapsWorthAsking(row.quote) : []),
-        ]
-          .filter(Boolean)
-          .join("; ") ||
-          (norm ? "Review original for extras" : "Awaiting quote"),
+        norm?.blocker ??
+          (norm ? "Stated total; review extras" : "Awaiting quote"),
+        taxBasis(norm),
+        row.quote?.inclusions?.join("; ") || "Not itemised",
+        row.quote?.exclusions?.join("; ") ||
+          "No exclusions itemised; confirm with venue",
+        gaps.join("; "),
+        row.sourceUrl ?? "",
+        row.quoteReceivedAt ? new Date(row.quoteReceivedAt).toISOString() : "",
+        row.newerReply ?? "",
       ]),
     ];
-    const csv = values
-      .map((r) =>
-        r
-          .map(
-            (c) =>
-              '"' +
-              (/^[=+@-]/.test(c) ? "'" + c : c).replaceAll('"', '""') +
-              '"',
-          )
-          .join(","),
-      )
-      .join("\r\n");
+    const csv = toCsv(values);
     const url = URL.createObjectURL(
       new Blob([csv], { type: "text/csv;charset=utf-8" }),
     );
@@ -131,15 +136,26 @@ export default function Board({
           id="hc"
           type="range"
           min="1"
-          max={Math.max(300, initialHeadcount)}
+          max="2000"
           step="1"
           value={headcount}
           onChange={(e) => setHeadcount(Number(e.target.value))}
         />
-        <output htmlFor="hc" className="count">
-          {headcount}
+        <label className="guest-entry">
+          <span className="sr-only">Exact guest count</span>
+          <input
+            type="number"
+            min={1}
+            max={2000}
+            value={headcount}
+            onChange={(e) => {
+              const next = Number(e.target.value);
+              if (Number.isInteger(next) && next >= 1 && next <= 2000)
+                setHeadcount(next);
+            }}
+          />
           <span>guests</span>
-        </output>
+        </label>
         <label className="menu-choice">
           Menu
           <select
@@ -151,15 +167,49 @@ export default function Board({
           </select>
         </label>
       </div>
+      {rows.length > 0 && (
+        <div className="decision-overview">
+          <div>
+            <h2>
+              {comparable.length
+                ? "Compare the price. Check the terms."
+                : "A price is only part of the answer."}
+            </h2>
+            <p>
+              <strong>{comparable.length}</strong> comparable stated{" "}
+              {comparable.length === 1 ? "total" : "totals"}
+              {" · "}
+              {
+                scored.filter(
+                  (s) => s.row.quote?.reply_kind === "quote" && s.norm?.blocker,
+                ).length
+              }{" "}
+              need price confirmation
+              {" · "}
+              {
+                scored.filter(
+                  (s) =>
+                    !s.row.quote ||
+                    s.row.quote.reply_kind === "auto_reply" ||
+                    s.row.quote.reply_kind === "no_price",
+                ).length
+              }{" "}
+              awaiting a quote
+            </p>
+          </div>
+          <span>
+            At {headcount} {diet === "veg" ? "vegetarian" : "non-vegetarian"}{" "}
+            guests
+          </span>
+        </div>
+      )}
       <div className="comparison-summary">
         <p className="hint" aria-live="polite">
-          {comparable.length} calculated{" "}
-          {comparable.length === 1 ? "total" : "totals"}
           {spread !== null
-            ? ` · ${inr(spread)} between lowest and highest`
+            ? `${inr(spread)} between the lowest and highest comparable stated totals. `
             : ""}
-          . Missing terms can change the order. Review taxes, service charges
-          and compulsory extras in the original.
+          Included items differ. Excluded or unstated costs can change the final
+          bill and the order.
         </p>
         <button className="quiet" onClick={download} disabled={!rows.length}>
           Export comparison
@@ -231,6 +281,43 @@ export default function Board({
                 {row.pricingFlag && (
                   <p className="note bite">{row.pricingFlag}</p>
                 )}
+                {row.quoteReceivedAt && (
+                  <p className="quote-date">
+                    Quote received{" "}
+                    {new Date(row.quoteReceivedAt).toLocaleDateString(
+                      undefined,
+                      { day: "numeric", month: "short", year: "numeric" },
+                    )}
+                  </p>
+                )}
+                {row.newerReply && (
+                  <p className="reply-warning" role="status">
+                    {row.newerReply === "queued"
+                      ? "A newer reply is being read. This price may change."
+                      : "A newer reply could not be read. Open replies to retry before deciding."}
+                  </p>
+                )}
+                {row.quote && row.quote.reply_kind === "quote" && (
+                  <details className="quote-terms">
+                    <summary>What this quote includes</summary>
+                    {row.quote.inclusions?.length ? (
+                      <ul>
+                        {row.quote.inclusions.map((term, index) => (
+                          <li key={`${term}-${index}`}>{term}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>
+                        Included items were not itemised. Check the original
+                        with the venue.
+                      </p>
+                    )}
+                    <p className="note">
+                      Terms are extracted from the original quote; review its
+                      wording before booking.
+                    </p>
+                  </details>
+                )}
               </td>
               <td className="num">
                 {norm?.total != null ? (
@@ -240,6 +327,7 @@ export default function Board({
                       {norm.isPreTax && <span className="pretax"> + tax</span>}
                     </strong>
                     <span className="perhead">
+                      {norm.blocker ? "Incomplete estimate" : "Stated total"} ·{" "}
                       {inr(Math.round(norm.total / headcount))} / guest
                     </span>
                   </>
@@ -262,13 +350,25 @@ export default function Board({
                 )}
               </td>
               <td>
+                {!!row.quote?.exclusions?.length && (
+                  <div className="quote-exclusions">
+                    <strong>Extra or excluded</strong>
+                    <ul>
+                      {row.quote.exclusions.map((term, index) => (
+                        <li key={`${term}-${index}`}>{term}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 {norm && !norm.blocker && gaps.length === 0 ? (
-                  <span className="pill complete">Ready to compare</span>
+                  <p className="terms-confirmed">
+                    Pricing terms stated. Confirm availability and any extras.
+                  </p>
                 ) : (
                   <>
                     {gaps.map((g) => (
                       <span className="pill asking" key={g}>
-                        {labels[g] ?? g}
+                        {g}
                       </span>
                     ))}
                     {gaps.length === 0 && (

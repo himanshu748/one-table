@@ -44,6 +44,8 @@ export const forEvent = query({
         norm: v.union(normalised, v.null()),
         gaps: v.array(v.string()),
         pricingFlag: v.union(v.string(), v.null()),
+        quoteReceivedAt: v.union(v.number(), v.null()),
+        newerReply: v.union(v.literal("queued"), v.literal("failed"), v.null()),
       }),
     ),
   }),
@@ -66,9 +68,49 @@ export const forEvent = query({
       .take(20);
     const byVendor = new Map(live.map((q) => [q.vendorId, q]));
 
-    const rows = vendors.map((vendor) => {
-      const quote = byVendor.get(vendor._id);
-      if (!quote) {
+    const rows = await Promise.all(
+      vendors.map(async (vendor) => {
+        const quote = byVendor.get(vendor._id);
+        const source = quote ? await ctx.db.get(quote.messageId) : null;
+        const latest = await ctx.db
+          .query("messages")
+          .withIndex("by_vendor_direction_received", (q) =>
+            q.eq("vendorId", vendor._id).eq("direction", "in"),
+          )
+          .order("desc")
+          .first();
+        const newerReply: "queued" | "failed" | null =
+          latest &&
+          (!source || latest.receivedAt > source.receivedAt) &&
+          (latest.extractionStatus === "queued" ||
+            latest.extractionStatus === "failed")
+            ? latest.extractionStatus
+            : null;
+        if (!quote) {
+          return {
+            vendorId: vendor._id,
+            vendorName: vendor.name,
+            email: vendor.email,
+            sourceUrl: vendor.sourceUrl,
+            discoveryExcerpt: vendor.discoveryExcerpt ?? null,
+            shortlisted: vendor.shortlisted ?? false,
+            status: vendor.status,
+            deliveryState: vendor.outboundState ?? null,
+            autoFollowup: vendor.autoFollowup ?? false,
+            followupState: vendor.followupState ?? null,
+            followupError: vendor.followupError ?? null,
+            deliveryError: vendor.error ?? null,
+            quote: null,
+            norm: null,
+            gaps: [] as string[],
+            pricingFlag: null as string | null,
+            quoteReceivedAt: null,
+            newerReply,
+          };
+        }
+        const extracted = quote as unknown as ExtractedQuote & {
+          lead_time_days: number | null;
+        };
         return {
           vendorId: vendor._id,
           vendorName: vendor.name,
@@ -82,34 +124,15 @@ export const forEvent = query({
           followupState: vendor.followupState ?? null,
           followupError: vendor.followupError ?? null,
           deliveryError: vendor.error ?? null,
-          quote: null,
-          norm: null,
-          gaps: [] as string[],
-          pricingFlag: null as string | null,
+          quote,
+          norm: normalise(extracted, headcount, diet),
+          gaps: gapsWorthAsking(extracted),
+          pricingFlag: quote.pricingFlag,
+          quoteReceivedAt: source?.receivedAt ?? null,
+          newerReply,
         };
-      }
-      const extracted = quote as unknown as ExtractedQuote & {
-        lead_time_days: number | null;
-      };
-      return {
-        vendorId: vendor._id,
-        vendorName: vendor.name,
-        email: vendor.email,
-        sourceUrl: vendor.sourceUrl,
-        discoveryExcerpt: vendor.discoveryExcerpt ?? null,
-        shortlisted: vendor.shortlisted ?? false,
-        status: vendor.status,
-        deliveryState: vendor.outboundState ?? null,
-        autoFollowup: vendor.autoFollowup ?? false,
-        followupState: vendor.followupState ?? null,
-        followupError: vendor.followupError ?? null,
-        deliveryError: vendor.error ?? null,
-        quote,
-        norm: normalise(extracted, headcount, diet),
-        gaps: gapsWorthAsking(extracted),
-        pricingFlag: quote.pricingFlag,
-      };
-    });
+      }),
+    );
 
     // Same three tiers the UI ranks by, computed here so every client agrees:
     // comparable quotes, then quotes that do not cover the headcount, then

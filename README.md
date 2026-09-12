@@ -98,3 +98,9 @@ Keep source, schema, generated Convex API bindings, lockfiles, synthetic fixture
 Do not commit provider keys, sign-in codes, browser sessions, customer documents, private mail exports, raw logs or rendered video binaries. `.gitignore` excludes environment files, caches and local output; `.env.example` contains configuration names only. Third-party dependencies retain their own license notices.
 
 `npm run format` formats application, backend, test and script source. Operator-only `scripts/check-webhook.mjs` requires `WEBHOOK_ORIGIN`, `QA_THREAD_ID` and `QA_SENDER` for a thread you own; it writes synthetic messages and is not part of the normal test suite.
+
+## Quote decision update, September 12
+
+Compare the stated amount with itemised inclusions, extras and missing terms. A newer unread reply is visible while the last usable quote remains available. Quote history retains text changes and links back to source messages; exported comparisons include their tax basis and uncertainty.
+
+Run `npm test` for the 64 arithmetic, lifecycle, ownership, upload and export regressions. The public walkthrough predates these additions; see `hackathon.md` for current evidence and limits.

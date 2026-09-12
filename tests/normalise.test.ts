@@ -53,6 +53,46 @@ describe("comparison correctness", () => {
       normalise({ ...base, taxes_included: null, tax_percent: 18 }, 120)
         .isPreTax,
     ).toBe(true));
+  it("keeps hall quotes with unstated minimum spend out of complete ranking", () => {
+    const result = normalise(
+      { ...base, pricing_model: "hall_plus_fnb", hall_rent: 20000 },
+      120,
+    );
+    expect(result.total).toBe(140000);
+    expect(result.blocker).toBe("food and beverage minimum unstated");
+    expect(quoteTier(result)).toBeGreaterThan(quoteTier(normalise(base, 120)));
+  });
+  it("distinguishes an explicit zero minimum from missing hall terms", () => {
+    const quote = {
+      ...base,
+      pricing_model: "hall_plus_fnb" as const,
+      hall_rent: 20000,
+      fnb_minimum: 0,
+      min_guarantee_covers: 0,
+    };
+    expect(normalise(quote, 120).blocker).toBeNull();
+    expect(
+      normalise({ ...quote, min_guarantee_covers: null }, 120).blocker,
+    ).toBe("minimum cover count unstated");
+    expect(gapsWorthAsking({ ...quote, min_guarantee_covers: null })).toContain(
+      "min_guarantee_covers",
+    );
+  });
+  it("calculates explicitly extra tax while preserving hall uncertainty", () => {
+    const result = normalise(
+      {
+        ...base,
+        pricing_model: "hall_plus_fnb",
+        hall_rent: 20000,
+        taxes_included: false,
+        tax_percent: 18,
+      },
+      120,
+    );
+    expect(result.total).toBe(165200);
+    expect(result.isPreTax).toBe(false);
+    expect(result.blocker).toBe("food and beverage minimum unstated");
+  });
   it("adds explicitly extra tax", () =>
     expect(
       normalise({ ...base, taxes_included: false, tax_percent: 18 }, 120).total,

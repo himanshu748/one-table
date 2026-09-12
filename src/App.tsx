@@ -425,6 +425,8 @@ function LiveEvent({ id }: { id: Id<"events"> }) {
             sourceUrl: r.sourceUrl,
             status: r.status,
             pricingFlag: r.pricingFlag,
+            quoteReceivedAt: r.quoteReceivedAt,
+            newerReply: r.newerReply,
           }))}
         />
       )}
@@ -724,7 +726,7 @@ function ReplyDesk({
         <p className="note">No messages yet. Nothing has been sent.</p>
       ) : (
         messages.map((m) => (
-          <details className="message" key={m._id}>
+          <details className="message" id={`message-${m._id}`} key={m._id}>
             <summary>
               {m.subject || "Untitled reply"}
               <span>
