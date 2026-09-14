@@ -58,7 +58,10 @@ export default function SignIn({ upgrading = false }: { upgrading?: boolean }) {
             disabled={sent || busy}
             aria-invalid={!sent && Boolean(error)}
             aria-describedby={!sent && error ? "signin-error" : undefined}
-            onChange={(e) => { setEmail(e.target.value); setError(""); }}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError("");
+            }}
             placeholder="you@example.com"
           />
         </label>
