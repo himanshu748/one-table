@@ -45,7 +45,7 @@ export default function SignIn({ upgrading = false }: { upgrading?: boolean }) {
           ? "Verify your email to keep this workspace when you change devices."
           : "Sign in with your email to save events and contact venues. No password or invitation needed."}
       </p>
-      <form onSubmit={submit}>
+      <form onSubmit={submit} aria-busy={busy}>
         <label>
           Email address
           <input
@@ -56,7 +56,9 @@ export default function SignIn({ upgrading = false }: { upgrading?: boolean }) {
             maxLength={254}
             value={email}
             disabled={sent || busy}
-            onChange={(e) => setEmail(e.target.value)}
+            aria-invalid={!sent && Boolean(error)}
+            aria-describedby={!sent && error ? "signin-error" : undefined}
+            onChange={(e) => { setEmail(e.target.value); setError(""); }}
             placeholder="you@example.com"
           />
         </label>
@@ -69,6 +71,9 @@ export default function SignIn({ upgrading = false }: { upgrading?: boolean }) {
               Sign-in code
               <input
                 name="code"
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "signin-error" : undefined}
+                onChange={() => setError("")}
                 autoComplete="one-time-code"
                 autoFocus
                 required
@@ -102,7 +107,7 @@ export default function SignIn({ upgrading = false }: { upgrading?: boolean }) {
           </button>
         )}
         {error && (
-          <p role="alert" className="error">
+          <p id="signin-error" role="alert" className="error">
             {error}
           </p>
         )}
