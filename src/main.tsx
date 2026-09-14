@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { ConvexReactClient } from "convex/react";
 import App from "./App";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
+import "./controls.css";
 
 // The fictional example remains separate from private events.
 // A configured backend enables authenticated workspace subscriptions.

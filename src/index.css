@@ -2,10 +2,10 @@
   --paper: #faf8f5;
   --card: #ffffff;
   --ink: #17140f;
-  --muted: #8b8378;
+  --muted: #706b63;
   --hair: #e6e0d6;
-  --accent: #1d5c53;
-  --warn: #a8531f;
+  --accent: #405b50;
+  --warn: #805e40;
   --pending: #efe9df;
   color-scheme: light;
 }
@@ -259,7 +259,7 @@ button.secondary:hover {
   background: #e9eeea;
 }
 :focus-visible {
-  outline: 3px solid #a8531f;
+  outline: 3px solid #805e40;
   outline-offset: 4px;
 }
 ::selection {

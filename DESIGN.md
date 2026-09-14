@@ -16,3 +16,7 @@ The landing route explains the product, shows missing-term handling, and answers
 ## Private workspace, September 9
 
 Keep the same warm paper, forest green and editorial headings. The saved-events home leads to a two-step brief. Event work is split into Shortlist, Compare quotes and Replies & documents views. Use flat venue rows, progressive disclosure for sources and reply forms, and a compact verified-account bar. Avoid exposing provider setup details in the main product flow.
+
+## Shared control conventions
+
+Use restrained, low-saturation accents on the existing paper or slate surfaces. Buttons use 4px vertical and 8px horizontal padding, a 4px corner radius, a 6px content gap, and 16px icons. Preserve readable labels and visible keyboard focus. The shared rules live in `controls.css`; illustrations retain their natural dimensions.
